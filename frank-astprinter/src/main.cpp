@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
   if (root_node != nullptr)
   {
-    ASTPrintVisitor ast_print_visitor;
+    ASTPrintVisitor ast_print_visitor(2, ' ');
     root_node->accept(ast_print_visitor);
   }
 
