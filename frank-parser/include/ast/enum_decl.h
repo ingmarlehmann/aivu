@@ -16,13 +16,8 @@ class EnumDecl : public ast::ASTNode
 
  public:
   virtual void accept(ASTNodeVisitor& visitor) override;
-  virtual void render(std::ostream& ostream, int indent) override;
-
- protected:
-  virtual void render_with_offset(std::ostream& ostream, int indent, int offset) override;
-
 };
 } // namespace ast
-}  // namespace fparser
+} // namespace fparser
 
 #endif /* end of include guard: ENUM_DECL_H_FYAVVCMT */

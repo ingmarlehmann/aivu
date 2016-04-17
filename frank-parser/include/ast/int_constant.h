@@ -16,12 +16,9 @@ class IntConstant : public ast::ASTNode
 
  public:
   virtual void accept(ASTNodeVisitor& visitor) override;
-  virtual void render(std::ostream& ostream, int indent) override;
 
-  virtual int value() const { return value_;  }
-
- protected:
-  virtual void render_with_offset(std::ostream& ostream, int indent, int offset) override;
+ public:
+  int value() const;
 
  private:
   int value_;

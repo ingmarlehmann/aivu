@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(frank-astprinter)
 
 set(SOURCES
+    src/ast_print_visitor.h
+    src/ast_print_visitor.cpp
     src/main.cpp
     )
 

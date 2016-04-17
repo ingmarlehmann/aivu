@@ -15,17 +15,15 @@ class ASTNode
  public:
   typedef ast::ASTNode* NodePtr_t;
 
-  virtual std::vector<NodePtr_t>& children();
-  virtual bool has_children() const { return children_.empty(); }
-  virtual void render(std::ostream& ostream, int indent);
-
+ public:
   virtual void accept(ASTNodeVisitor& visitor) = 0;
 
  public:
-  virtual ~ASTNode();
+  virtual std::vector<NodePtr_t>& children();
+  virtual bool has_children() const;
 
- protected:
-  virtual void render_with_offset(std::ostream& ostream, int indent, int offset);
+ public:
+  virtual ~ASTNode();
 
  protected:
   ASTNode();

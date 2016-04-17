@@ -11,22 +11,19 @@ namespace ast
 class Identifier : public ast::ASTNode
 {
  public:
-  Identifier(const std::string& name);
-  virtual ~Identifier();
+  const std::string& name() const;
 
  public:
   virtual void accept(ASTNodeVisitor& visitor) override;
-  virtual void render(std::ostream& ostream, int indent) override;
 
  public:
-  const std::string& name() const { return name_; }
- protected:
-  virtual void render_with_offset(std::ostream& ostream, int indent, int offset) override;
+   Identifier(const std::string& name);
+   virtual ~Identifier();
 
  private:
   std::string name_;
 };
-}  // namespace ast
-}  // namespace fparser
+} // namespace ast
+} // namespace fparser
 
 #endif /* end of include guard: IDENTIFIER_H_CN2ULECA */

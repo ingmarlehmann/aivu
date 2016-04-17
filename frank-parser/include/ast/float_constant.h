@@ -16,15 +16,11 @@ class FloatConstant : public ast::ASTNode
 
  public:
   virtual void accept(ASTNodeVisitor& visitor) override;
-  virtual void render(std::ostream& ostream, int indent) override;
-
- protected:
-  virtual void render_with_offset(std::ostream& ostream, int indent, int offset) override;
 
  private:
   float value_;
 };
-}
-}  // namespace fparser
+} // namespace ast
+} // namespace fparser
 
 #endif /* end of include guard: FLOAT_CONSTANT_H_8IQK3PF4 */

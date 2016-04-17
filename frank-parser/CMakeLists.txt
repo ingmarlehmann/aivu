@@ -28,6 +28,7 @@ set(SOURCES
         src/parser.cpp
         include/ast/ast_node.h
         include/ast/ast_node_list.h
+        include/ast/ast_node_visitor.h
         include/ast/double_constant.h
         include/ast/enum_decl.h
         include/ast/enumerator.h

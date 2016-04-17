@@ -10,21 +10,21 @@ namespace ast
 class Type : public ast::ASTNode
 {
  public:
+  const std::string& name() const;
+  int id() const;
+
+ public:
   virtual void accept(ASTNodeVisitor& visitor) override;
-  virtual void render(std::ostream& ostream, int indent) override;
 
  public:
   Type(int id, const std::string& name);
   virtual ~Type();
 
- protected:
-  virtual void render_with_offset(std::ostream& ostream, int indent, int offset) override;
-
  private:
   int id_;
   std::string name_;
 };
-}
-}  // namespace fparser
+} // namespace ast
+} // namespace fparser
 
 #endif /* end of include guard: TYPE_H_J0ZN7XQD */

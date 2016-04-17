@@ -10,15 +10,8 @@ namespace ast
 {
 Identifier::Identifier(const std::string& name) : name_(name) {}
 Identifier::~Identifier() {}
-void Identifier::accept(ASTNodeVisitor& visitor) { visitor.visit(*this); }
-void Identifier::render(std::ostream& ostream, int indent) { render_with_offset(ostream, indent, 0); }
-void Identifier::render_with_offset(std::ostream& ostream, int indent, int offset)
-{
-  std::stringstream ss;
-  ss << ">" << util::spacex(offset) << "Identifier (name:" << name_ << ")" << std::endl;
-  ostream << ss.str();
+const std::string &Identifier::name() const { return name_; }
 
-  ASTNode::render_with_offset(ostream, indent, offset);
-}
-}  // namespace ast
-}
+void Identifier::accept(ASTNodeVisitor& visitor) { visitor.visit(*this); }
+} // namespace ast
+} // namespace fparser

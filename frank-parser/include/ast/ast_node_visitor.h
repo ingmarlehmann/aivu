@@ -31,8 +31,10 @@ class ASTNodeVisitor
   virtual void visit(ast::StringConstant& node) { (void)node; }
   virtual void visit(ast::Type& node)           { (void)node; }
   virtual void visit(ast::VariableDecl& node)   { (void)node; }
+
+  virtual ~ASTNodeVisitor() { }
 };
-}
-}  // namespace fparser
+} // namespace ast
+} // namespace fparser
 
 #endif /* end of include guard: AST_NODE_VISITOR_H_YMA0QY4V */
