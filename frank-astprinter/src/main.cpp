@@ -50,8 +50,10 @@ int main(int argc, char** argv)
 {
   if (argc < 2)
   {
-    std::cerr << "ERROR: no file specified." << std::endl;
-    std::cout << "usage: fidl_parser <file>" << std::endl;
+    std::string program_name(argv[0]);
+
+    std::cerr << "ERROR: no input file specified." << std::endl;
+    std::cout << "usage: " << program_name << " <file>" << std::endl;
     return -1;
   }
 
