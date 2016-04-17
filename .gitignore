@@ -7,5 +7,6 @@ install_manifest.txt
 compile_commands.json
 tags
 build
-.swp
-.user
+*.swp
+*.user
+*.kdev4
