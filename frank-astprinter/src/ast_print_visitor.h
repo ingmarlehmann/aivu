@@ -21,6 +21,9 @@ class ASTPrintVisitor : public fparser::ast::ASTNodeVisitor
   virtual void visit(fparser::ast::Identifier&     node) override;
   virtual void visit(fparser::ast::IntConstant&    node) override;
   virtual void visit(fparser::ast::Interface&      node) override;
+  virtual void visit(fparser::ast::MethodArgument& node) override;
+  virtual void visit(fparser::ast::MethodBody&     node) override;
+  virtual void visit(fparser::ast::MethodDecl&     node) override;
   virtual void visit(fparser::ast::Root&           node) override;
   virtual void visit(fparser::ast::StringConstant& node) override;
   virtual void visit(fparser::ast::Type&           node) override;

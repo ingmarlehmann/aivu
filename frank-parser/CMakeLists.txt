@@ -20,6 +20,9 @@ set(SOURCES
         src/ast/identifier.cpp
         src/ast/int_constant.cpp
         src/ast/interface.cpp
+        src/ast/method_argument.cpp
+        src/ast/method_body.cpp
+        src/ast/method_decl.cpp
         src/ast/package_name.cpp
         src/ast/root.cpp
         src/ast/string_constant.cpp
@@ -41,6 +44,9 @@ set(SOURCES
         include/ast/identifier.h
         include/ast/int_constant.h
         include/ast/interface.h
+        include/ast/method_argument.h
+        include/ast/method_body.h
+        include/ast/method_decl.h
         include/ast/package_name.h
         include/ast/root.h
         include/ast/string_constant.h

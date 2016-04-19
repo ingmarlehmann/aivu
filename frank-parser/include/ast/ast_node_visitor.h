@@ -14,6 +14,9 @@ class FrancaComment;
 class Identifier;
 class IntConstant;
 class Interface;
+class MethodArgument;
+class MethodBody;
+class MethodDecl;
 class PackageName;
 class Root;
 class StringConstant;
@@ -33,6 +36,9 @@ class ASTNodeVisitor
   virtual void visit(ast::Identifier& node)     { (void)node; }
   virtual void visit(ast::IntConstant& node)    { (void)node; }
   virtual void visit(ast::Interface& node)      { (void)node; }
+  virtual void visit(ast::MethodArgument& node) { (void)node; }
+  virtual void visit(ast::MethodBody& node)     { (void)node; }
+  virtual void visit(ast::MethodDecl& node)     { (void)node; }
   virtual void visit(ast::PackageName& node)    { (void)node; }
   virtual void visit(ast::Root& node)           { (void)node; }
   virtual void visit(ast::StringConstant& node) { (void)node; }

@@ -174,59 +174,62 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
 
     /*{IMPORT}              return TOKEN(TIMPORT);*/
     /*{FROM}                    return TOKEN(TFROM);*/
-{VERSION}             return TOKEN(TVERSION);
     /*{BROADCAST}               return TOKEN(TBROADCAST);*/
     /*{SELECTIVE}               return TOKEN(TSELECTIVE);*/
     /*{FIREANDFORGET}           return TOKEN(TFIREANDFORGET);*/
-
-    /*{OUT}                 return TOKEN(TOUT);*/
-{MAJOR}                   return TOKEN(TMAJOR);
-{MINOR}                   return TOKEN(TMINOR);
-{PACKAGE}             return TOKEN(TPACKAGE);
-    /*{METHOD}              return TOKEN(TMETHOD);*/
     /*{EXTENDS}             return TOKEN(TEXTENDS);*/
     /*{POLYMORPHIC}         return TOKEN(TPOLYMORPHIC);*/
-
-{ENUMERATION}         return TOKEN(TENUMERATION);
     /*{STRUCT}              return TOKEN(TSTRUCT);*/
     /*{UNION}                   return TOKEN(TUNION);*/
     /*{MAP}                 return TOKEN(TMAP);*/
     /*{TYPECOLLECTION}      return TOKEN(TTYPECOLLECTION);*/
-
-    /*{TYPEDEF}             return TOKEN(TTYPEDEF);*/
-    /*{IS}                  return TOKEN(TIS);*/
-    /*{TO}                  return TOKEN(TTO);*/
-{INTERFACE}               return TOKEN(TINTERFACE);
     /*{CONST}                   return TOKEN(TCONST);*/
     /*{ARRAY}                   return TOKEN(TARRAY);*/
     /*{OF}                  return TOKEN(TOF);*/
 
-{INTEGER}               return      TOKEN(TINTEGER);
-{UINT64}                return      TOKEN(TUINT64);
-{INT64}                 return      TOKEN(TINT64);
-{TRUE}                  return      TOKEN(TTRUE);
-{FALSE}                 return      TOKEN(TFALSE);
+    /*{TYPEDEF}             return TOKEN(TTYPEDEF);*/
+    /*{IS}                  return TOKEN(TIS);*/
+    /*{TO}                  return TOKEN(TTO);*/
+    /*{CONST}                   return TOKEN(TCONST);*/
+    /*{ARRAY}                   return TOKEN(TARRAY);*/
+    /*{OF}                  return TOKEN(TOF);*/
 
-{UINT32}                return      TOKEN(TUINT32);
-{INT32}                 return      TOKEN(TINT32);
-{UINT16}                return      TOKEN(TUINT16);
-{INT16}                 return      TOKEN(TINT16);
-{UINT8}                 return      TOKEN(TUINT8);
-{INT8}                  return      TOKEN(TINT8);
+{METHOD}         return      TOKEN(TMETHOD);
+{VERSION}        return      TOKEN(TVERSION);
+{IN}             return      TOKEN(TIN);
+{OUT}            return      TOKEN(TOUT);
+{MAJOR}          return      TOKEN(TMAJOR);
+{MINOR}          return      TOKEN(TMINOR);
+{PACKAGE}        return      TOKEN(TPACKAGE);
+{ENUMERATION}    return      TOKEN(TENUMERATION);
+{INTERFACE}      return      TOKEN(TINTERFACE);
 
-{BOOLEAN}               return      TOKEN(TBOOLEAN);
-{FLOAT}                 return      TOKEN(TFLOAT);
-{DOUBLE}                return      TOKEN(TDOUBLE);
-{STRING}                return      TOKEN(TSTRING);
-{BYTEBUFFER}            return      TOKEN(TBYTEBUFFER);
+{INTEGER}        return      TOKEN(TINTEGER);
+{UINT64}         return      TOKEN(TUINT64);
+{INT64}          return      TOKEN(TINT64);
+{TRUE}           return      TOKEN(TTRUE);
+{FALSE}          return      TOKEN(TFALSE);
 
-{FRANCA_COMMENT}        SAVE_TOKEN; return TFRANCACOMMENT;
-{C_COMMENT}             SAVE_TOKEN; return TCCOMMENT;
+{UINT32}         return      TOKEN(TUINT32);
+{INT32}          return      TOKEN(TINT32);
+{UINT16}         return      TOKEN(TUINT16);
+{INT16}          return      TOKEN(TINT16);
+{UINT8}          return      TOKEN(TUINT8);
+{INT8}           return      TOKEN(TINT8);
+
+{BOOLEAN}        return      TOKEN(TBOOLEAN);
+{FLOAT}          return      TOKEN(TFLOAT);
+{DOUBLE}         return      TOKEN(TDOUBLE);
+{STRING}         return      TOKEN(TSTRING);
+{BYTEBUFFER}     return      TOKEN(TBYTEBUFFER);
+
+{FRANCA_COMMENT} SAVE_TOKEN; return TFRANCACOMMENT;
+{C_COMMENT}      SAVE_TOKEN; return TCCOMMENT;
 
     /* Identifiers */
-{IDENTIFIER}            SAVE_TOKEN; return TIDENTIFIER;
+{IDENTIFIER}     SAVE_TOKEN; return TIDENTIFIER;
 
-{PACKAGE_NAME}          SAVE_TOKEN; return TPACKAGENAME;
+{PACKAGE_NAME}   SAVE_TOKEN; return TPACKAGENAME;
 
 {INT_CONST_DEC}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_DEC; }
 {INT_CONST_OCT}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_OCT; }

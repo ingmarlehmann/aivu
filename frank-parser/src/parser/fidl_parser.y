@@ -17,6 +17,9 @@
     #include "ast/identifier.h"
     #include "ast/int_constant.h"
     #include "ast/interface.h"
+    #include "ast/method_argument.h"
+    #include "ast/method_body.h"
+    #include "ast/method_decl.h"
     #include "ast/package_name.h"
     #include "ast/root.h"
     #include "ast/string_constant.h"
@@ -69,6 +72,9 @@
 %token <t_token>    TVERSION        "_version_(keyword)"
 %token <t_token>    TMAJOR          "_major_(keyword)"
 %token <t_token>    TMINOR          "_minor_(keyword)"
+%token <t_token>    TMETHOD         "_method_(keyword)"
+%token <t_token>    TIN             "_in_(keyword)"
+%token <t_token>    TOUT            "_out_(keyword)"
 
 %token <t_token>    TENUMERATION    "_enumeration_(keyword)"
 %token <t_token>    TINTEGER        "_Integer_(keyword)"
@@ -147,6 +153,12 @@
 %type <t_ast_node> interface_member
 %type <t_ast_node> interface_member_list
 %type <t_ast_node> int_constant
+%type <t_ast_node> method_argument
+%type <t_ast_node> method_argument_list
+%type <t_ast_node> method_decl
+%type <t_ast_node> method_body
+%type <t_ast_node> method_in_arguments
+%type <t_ast_node> method_out_arguments
 %type <t_ast_node> package_name
 %type <t_ast_node> type
 %type <t_ast_node> variable_decl
@@ -171,6 +183,7 @@ interface_member_list : interface_member { $$ = new ast::ASTNodeList(); add_chil
                       ;
 
 interface_member : enum_decl { $$ = $1; }
+                 | method_decl { $$ = $1; }
                  | variable_decl { $$ = $1; } /* this is not valid! REMOVE */
                  ;
 
@@ -186,6 +199,31 @@ version : TVERSION TLBRACE TMAJOR int_constant TMINOR int_constant TRBRACE
                    /*| variable_decl_list variable_decl { add_child($1, $2); $$ = $1; }*/
                    /*;*/
 
+method_decl : TMETHOD identifier TLBRACE method_body TRBRACE 
+                { $$ = new ast::MethodDecl($2, $4, nullptr); add_child($$, $2); add_child($$, $4); }
+            | franca_comment TMETHOD identifier TLBRACE method_body TRBRACE 
+                { $$ = new ast::MethodDecl($3, $5, $1); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
+            ;
+
+method_body : method_out_arguments { $$ = new ast::MethodBody(nullptr, $1); add_child($$, $1); }
+            | method_out_arguments method_in_arguments 
+                { $$ = new ast::MethodBody($2, $1); add_child($$, $1); add_child($$, $2); }
+            | method_in_arguments method_out_arguments 
+                { $$ = new ast::MethodBody($1, $2); add_child($$, $2); add_child($$, $1); }
+            ;
+
+method_in_arguments : TIN TLBRACE method_argument_list TRBRACE { $$ = $3; }
+method_out_arguments : TOUT TLBRACE method_argument_list TRBRACE { $$ = $3; }
+
+method_argument_list : method_argument { $$ = new ast::ASTNodeList(); add_child($$, $1); }
+                     | method_argument_list method_argument { $$ = $1; add_child($$, $1); }
+                     ;
+
+method_argument : type identifier { $$ = new ast::MethodArgument(); add_child($$, $1); add_child($$, $2); }
+                | franca_comment type identifier 
+                    { $$ = new ast::MethodArgument(); 
+                        add_child($$, $1); add_child($$, $2); add_child($$, $3); }
+                ;
 
 enum_decl : TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
                 { $$ = new ast::EnumDecl(); add_child($$, $2); add_child($$, $4); }
