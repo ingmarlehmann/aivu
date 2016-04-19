@@ -13,12 +13,16 @@
     #include "ast/enum_decl.h"
     #include "ast/enumerator.h"
     #include "ast/float_constant.h"
+    #include "ast/franca_comment.h"
     #include "ast/identifier.h"
     #include "ast/int_constant.h"
+    #include "ast/interface.h"
+    #include "ast/package_name.h"
     #include "ast/root.h"
     #include "ast/string_constant.h"
     #include "ast/type.h"
     #include "ast/variable_decl.h"
+    #include "ast/version.h"
 
     using namespace fparser;
     std::function<void(const char*)> bison_error_callback;
@@ -55,30 +59,36 @@
     double        t_double;
 }
 
-%token <t_string>   TIDENTIFIER     "Identifier"
+%token <t_string>   TIDENTIFIER     "_identifier_(definition)"
+%token <t_string>   TPACKAGENAME    "_package name_(definition)"
+%token <t_string>   TFRANCACOMMENT  "_franca comment_(definition)"
+%token <t_string>   TCCOMMENT       "_c-style comment_(definition)"
 
-%token <t_string>   TFRANCACOMMENT  "Franca comment"
-%token <t_string>   TCCOMMENT       "C-style comment"
+%token <t_token>    TINTERFACE      "_interface_(keyword)"
+%token <t_token>    TPACKAGE        "_package_(keyword)"
+%token <t_token>    TVERSION        "_version_(keyword)"
+%token <t_token>    TMAJOR          "_major_(keyword)"
+%token <t_token>    TMINOR          "_minor_(keyword)"
 
-%token <t_ast_node> TENUMERATION    "Enumeration"
-%token <t_token>    TINTEGER        "Integer"
-%token <t_token>    TUINT64         "UInt64"
-%token <t_token>    TINT64          "Int64"
-%token <t_token>    TTRUE           "TRUE"
-%token <t_token>    TFALSE          "FALSE"
+%token <t_token>    TENUMERATION    "_enumeration_(keyword)"
+%token <t_token>    TINTEGER        "_Integer_(keyword)"
+%token <t_token>    TUINT64         "_UInt64_(keyword)"
+%token <t_token>    TINT64          "_Int64_(keyword)"
+%token <t_token>    TTRUE           "_true_(keyword)"
+%token <t_token>    TFALSE          "_false_(keyword)"
 
-%token <t_token>    TUINT32         "UInt32"
-%token <t_token>    TINT32          "Int32"
-%token <t_token>    TUINT16         "UInt16"
-%token <t_token>    TINT16          "Int16"
-%token <t_token>    TUINT8          "UInt8"
-%token <t_token>    TINT8           "Int8"
+%token <t_token>    TUINT32         "_UInt32_(keyword)"
+%token <t_token>    TINT32          "_Int32_(keyword)"
+%token <t_token>    TUINT16         "_UInt16_(keyword)"
+%token <t_token>    TINT16          "_Int16_(keyword)"
+%token <t_token>    TUINT8          "_UInt8_(keyword)"
+%token <t_token>    TINT8           "_Int8_(keyword)"
 
-%token <t_token>    TBOOLEAN        "Boolean"
-%token <t_token>    TFLOAT          "Float"
-%token <t_token>    TDOUBLE         "Double"
-%token <t_token>    TSTRING         "String"
-%token <t_token>    TBYTEBUFFER     "ByteBuffer"
+%token <t_token>    TBOOLEAN        "_Boolean_(keyword)"
+%token <t_token>    TFLOAT          "_Float_(keyword)"
+%token <t_token>    TDOUBLE         "_Double_(keyword)"
+%token <t_token>    TSTRING         "_String_(keyword)"
+%token <t_token>    TBYTEBUFFER     "_ByteBuffer_(keyword)"
 
 %token <t_longlong> TINT_CONST_DEC  "_integer_constant_decimal_"
 %token <t_longlong> TINT_CONST_OCT  "_integer_constant_octal_"
@@ -124,45 +134,64 @@
 
 %token <t_token>    TEQUALS
 
-%type <t_ast_node> document_root
-%type <t_ast_node> root_element
-%type <t_ast_node> root_element_list
-%type <t_ast_node> variable_decl
-/*%type <t_ast_node> variable_decl_list   "Variable declarator list"*/
-%type <t_ast_node> enum_decl
-%type <t_ast_node> enumerator_list
-%type <t_ast_node> enumerator
 %type <t_ast_node> constant
-%type <t_ast_node> int_constant
-%type <t_ast_node> float_constant
+%type <t_ast_node> document
 %type <t_ast_node> double_constant
-%type <t_ast_node> type
+%type <t_ast_node> enum_decl
+%type <t_ast_node> enumerator
+%type <t_ast_node> enumerator_list
+%type <t_ast_node> float_constant
+%type <t_ast_node> franca_comment
 %type <t_ast_node> identifier
+%type <t_ast_node> interface
+%type <t_ast_node> interface_member
+%type <t_ast_node> interface_member_list
+%type <t_ast_node> int_constant
+%type <t_ast_node> package_name
+%type <t_ast_node> type
+%type <t_ast_node> variable_decl
+%type <t_ast_node> version
+/*%type <t_ast_node> variable_decl_list   "Variable declarator list"*/
 
-%start document_root
+%start document
 
 %%
 
-document_root : root_element_list { add_child(root_node, $1); }
+document : package_name interface { add_child(root_node, $1); add_child(root_node, $2); }
               ;
 
-root_element_list : root_element { $$ = new ast::ASTNodeList(); add_child($$, $1); }
-                  | root_element_list root_element { add_child($1, $2); $$ = $1; }
-                  ;
+interface : TINTERFACE identifier TLBRACE version interface_member_list TRBRACE 
+                { $$ = new ast::Interface(); add_child($$, $2); add_child($$, $4); add_child($$, $5); }
+          | franca_comment TINTERFACE identifier TLBRACE version interface_member_list TRBRACE 
+                { $$ = new ast::Interface(); add_child($$, $1); add_child($$, $3); add_child($$, $5); add_child($$, $6); }
+          ;
 
-root_element : variable_decl { $$ = $1; }
-             | enum_decl { $$ = $1; }
+interface_member_list : interface_member { $$ = new ast::ASTNodeList(); add_child($$, $1); }
+                      | interface_member_list interface_member { $$ = $1; add_child($$, $2); }
+                      ;
+
+interface_member : enum_decl { $$ = $1; }
+                 | variable_decl { $$ = $1; } /* this is not valid! REMOVE */
+                 ;
+
+package_name : TPACKAGE TPACKAGENAME { $$ = new ast::PackageName(*$2); delete $2; }
              ;
+
+version : TVERSION TLBRACE TMAJOR int_constant TMINOR int_constant TRBRACE
+            { $$ = new ast::Version(*dynamic_cast<ast::IntConstant*>($4), *dynamic_cast<ast::IntConstant*>($6)); 
+                add_child($$, $4); add_child($$, $6); }
+        ;
 
 /*variable_decl_list : variable_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }*/
                    /*| variable_decl_list variable_decl { add_child($1, $2); $$ = $1; }*/
                    /*;*/
 
-variable_decl : type identifier { $$ = new ast::VariableDecl(); add_child($$, $1); add_child($$, $2); }
-              | type identifier TEQUALS constant { $$ = new ast::VariableDecl(); add_child($$, $2); add_child($$, $4); }
-              ;
 
-enum_decl : TENUMERATION identifier TLBRACE enumerator_list TRBRACE { $$ = new ast::EnumDecl(); add_child($$, $2); add_child($$, $4); }
+enum_decl : TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
+                { $$ = new ast::EnumDecl(); add_child($$, $2); add_child($$, $4); }
+          | franca_comment TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
+                { $$ = new ast::EnumDecl(); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
+          ;
 
 enumerator_list : enumerator { $$ = new ast::ASTNodeList(); add_child($$,$1); }
                 | enumerator_list enumerator { add_child($1,$2); $$ = $1; }
@@ -170,6 +199,8 @@ enumerator_list : enumerator { $$ = new ast::ASTNodeList(); add_child($$,$1); }
 
 enumerator : identifier { $$ = new ast::Enumerator(); add_child($$, $1); }
            | identifier TEQUALS int_constant { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $3); }
+           | franca_comment identifier { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $2); }
+           | franca_comment identifier TEQUALS int_constant { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $2); add_child($$, $4); }
            ;
 
 /*expression : unary_expression {  }*/
@@ -185,6 +216,12 @@ enumerator : identifier { $$ = new ast::Enumerator(); add_child($$, $1); }
     /*unary_expression (++x, x++, !x, ...)*/
     /*binary_expression (x = y+z, d = 5*10, ...)*/
     /*tenary_expression (a = b ? c : d) */
+
+franca_comment : TFRANCACOMMENT { $$ = new ast::FrancaComment(*$1); delete $1; }
+
+variable_decl : type identifier { $$ = new ast::VariableDecl(); add_child($$, $1); add_child($$, $2); }
+              | type identifier TEQUALS constant { $$ = new ast::VariableDecl(); add_child($$, $2); add_child($$, $4); }
+              ;
 
 identifier : TIDENTIFIER { $$ = new ast::Identifier(*$1); delete $1; }
 
@@ -222,7 +259,7 @@ type : TINTEGER    { $$ = new ast::Type(0,  std::string("Integer")); }
      | TDOUBLE     { $$ = new ast::Type(0,  std::string("Double")); }
      | TSTRING     { $$ = new ast::Type(0,  std::string("String")); }
      | TBYTEBUFFER { $$ = new ast::Type(0,  std::string("ByteBuffer")); }
-;
+    ;
 
 %%
 

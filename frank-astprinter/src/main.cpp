@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cstring>
 
 #include "ast/ast_node_list.h"
 #include "ast/enum_decl.h"
@@ -10,24 +11,36 @@
 
 #include "ast_print_visitor.h"
 
+void print_usage(const std::string& program_name)
+{
+    std::cout << "usage: " << program_name << " <file> [--debug]" << "\n";
+}
+
 int main(int argc, char** argv)
 {
   if (argc < 2)
   {
     std::string program_name(argv[0]);
+    std::cerr << "ERROR: no input file specified." << "\n";
+    print_usage(program_name);
 
-    std::cerr << "ERROR: no input file specified." << std::endl;
-    std::cout << "usage: " << program_name << " <file>" << std::endl;
     return -1;
+  }
+
+  bool debug = false;
+  if(argc > 2)
+  {
+    std::cout << "DEBUG: enabled" << "\n";
+    debug = (strcmp(argv[2], "--debug") == 0);   
   }
 
   std::string filename(argv[1]);
 
   fparser::FidlParser parser;
-  fparser::ParserStatus status = parser.parse(filename);
+  fparser::ParserStatus status = parser.parse(filename, debug);
   if(fparser::ParserStatus::SUCCESS != status)
   {
-      std::cout << "Failed to parse file '" << filename << "'" << std::endl;
+      std::cout << "Failed to parse file '" << filename << "'" << "\n";
       return -1;
   }
 

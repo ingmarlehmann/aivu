@@ -1,0 +1,15 @@
+package org.franca_parser.test
+
+import A.B.C from "A.fidl"
+import C.D.* from "C.fidl"
+
+interface TestImports
+{
+    method DontMindMe
+    {
+        out
+        {
+            UInt32 dev_null
+        }
+    }
+}

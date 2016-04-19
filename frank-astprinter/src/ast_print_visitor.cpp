@@ -8,12 +8,15 @@
 #include "ast/enumerator.h"
 #include "ast/enum_decl.h"
 #include "ast/float_constant.h"
+#include "ast/franca_comment.h"
 #include "ast/identifier.h"
+#include "ast/interface.h"
 #include "ast/int_constant.h"
 #include "ast/root.h"
 #include "ast/string_constant.h"
 #include "ast/type.h"
 #include "ast/variable_decl.h"
+#include "ast/version.h"
 
 ASTPrintVisitor::ASTPrintVisitor()
 {
@@ -33,6 +36,24 @@ ASTPrintVisitor::ASTPrintVisitor(int indent_step_size, const char indent_charact
 void ASTPrintVisitor::visit(fparser::ast::Root &node)
 {
     std::cout << nchars(indent_character_, indentation_) << "RootNode" << std::endl;
+    visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::FrancaComment &node)
+{
+    std::cout << nchars(indent_character_, indentation_) << "FrancaComment(" << node.comment() << ")" << std::endl;
+    visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::Interface &node)
+{
+    std::cout << nchars(indent_character_, indentation_) << "Interface" << std::endl;
+    visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::Version &node)
+{
+    std::cout << nchars(indent_character_, indentation_) << "Version" << std::endl;
     visit_children(node, *this);
 }
 

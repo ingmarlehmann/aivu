@@ -17,12 +17,15 @@ class ASTPrintVisitor : public fparser::ast::ASTNodeVisitor
   virtual void visit(fparser::ast::EnumDecl&       node) override;
   virtual void visit(fparser::ast::Enumerator&     node) override;
   virtual void visit(fparser::ast::FloatConstant&  node) override;
+  virtual void visit(fparser::ast::FrancaComment&  node) override;
   virtual void visit(fparser::ast::Identifier&     node) override;
   virtual void visit(fparser::ast::IntConstant&    node) override;
+  virtual void visit(fparser::ast::Interface&      node) override;
   virtual void visit(fparser::ast::Root&           node) override;
   virtual void visit(fparser::ast::StringConstant& node) override;
   virtual void visit(fparser::ast::Type&           node) override;
   virtual void visit(fparser::ast::VariableDecl&   node) override;
+  virtual void visit(fparser::ast::Version&        node) override;
 
  private:
   void visit_children(fparser::ast::ASTNode& node, ASTPrintVisitor& visitor);

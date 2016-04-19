@@ -10,12 +10,16 @@ class DoubleConstant;
 class EnumDecl;
 class Enumerator;
 class FloatConstant;
+class FrancaComment;
 class Identifier;
 class IntConstant;
+class Interface;
+class PackageName;
 class Root;
 class StringConstant;
 class Type;
 class VariableDecl;
+class Version;
 
 class ASTNodeVisitor
 {
@@ -25,12 +29,16 @@ class ASTNodeVisitor
   virtual void visit(ast::EnumDecl& node)       { (void)node; }
   virtual void visit(ast::Enumerator& node)     { (void)node; }
   virtual void visit(ast::FloatConstant& node)  { (void)node; }
+  virtual void visit(ast::FrancaComment& node)  { (void)node; }
   virtual void visit(ast::Identifier& node)     { (void)node; }
   virtual void visit(ast::IntConstant& node)    { (void)node; }
+  virtual void visit(ast::Interface& node)      { (void)node; }
+  virtual void visit(ast::PackageName& node)    { (void)node; }
   virtual void visit(ast::Root& node)           { (void)node; }
   virtual void visit(ast::StringConstant& node) { (void)node; }
   virtual void visit(ast::Type& node)           { (void)node; }
   virtual void visit(ast::VariableDecl& node)   { (void)node; }
+  virtual void visit(ast::Version& node)        { (void)node; }
 
   virtual ~ASTNodeVisitor() { }
 };

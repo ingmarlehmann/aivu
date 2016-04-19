@@ -16,16 +16,20 @@ set(SOURCES
         src/ast/enum_decl.cpp
         src/ast/enumerator.cpp
         src/ast/float_constant.cpp
+        src/ast/franca_comment.cpp
         src/ast/identifier.cpp
         src/ast/int_constant.cpp
+        src/ast/interface.cpp
+        src/ast/package_name.cpp
         src/ast/root.cpp
         src/ast/string_constant.cpp
         src/ast/type.cpp
         src/ast/variable_decl.cpp
+        src/ast/version.cpp
+        src/parser.cpp
         src/parser/fidl_lexer.l
         src/parser/fidl_parser.y
         src/util/util.cpp
-        src/parser.cpp
         include/ast/ast_node.h
         include/ast/ast_node_list.h
         include/ast/ast_node_visitor.h
@@ -33,14 +37,18 @@ set(SOURCES
         include/ast/enum_decl.h
         include/ast/enumerator.h
         include/ast/float_constant.h
-        include/ast/int_constant.h
+        include/ast/franca_comment.h
         include/ast/identifier.h
+        include/ast/int_constant.h
+        include/ast/interface.h
+        include/ast/package_name.h
         include/ast/root.h
         include/ast/string_constant.h
         include/ast/type.h
         include/ast/variable_decl.h
-        include/util/util.h
+        include/ast/version.h
         include/parser.h
+        include/util/util.h
         )
 
 add_library(${PROJECT_NAME}

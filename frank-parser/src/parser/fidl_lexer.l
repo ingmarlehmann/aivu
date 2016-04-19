@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-
+#include <sstream>
 #include "ast/ast_node.h"
 #include "gen_bison_parser.hpp"
 
@@ -162,6 +162,8 @@ FLOAT_CONST_HEX         {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BIN
 DOUBLE_CONST_HEX        {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BINARY_EXPONENT_PART}[Dd]?
     /* ===================================================== */
 
+PACKAGE_NAME_ID         [a-zA-Z_]{1}[a-zA-Z0-9_]*
+PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
 %%
 
     /*                   */
@@ -172,15 +174,15 @@ DOUBLE_CONST_HEX        {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BIN
 
     /*{IMPORT}              return TOKEN(TIMPORT);*/
     /*{FROM}                    return TOKEN(TFROM);*/
-    /*{VERSION}             return TOKEN(TVERSION);*/
+{VERSION}             return TOKEN(TVERSION);
     /*{BROADCAST}               return TOKEN(TBROADCAST);*/
     /*{SELECTIVE}               return TOKEN(TSELECTIVE);*/
     /*{FIREANDFORGET}           return TOKEN(TFIREANDFORGET);*/
 
     /*{OUT}                 return TOKEN(TOUT);*/
-    /*{MAJOR}                   return TOKEN(TMAJOR);*/
-    /*{MINOR}                   return TOKEN(TMINOR);*/
-    /*{PACKAGE}             return TOKEN(TPACKAGE);*/
+{MAJOR}                   return TOKEN(TMAJOR);
+{MINOR}                   return TOKEN(TMINOR);
+{PACKAGE}             return TOKEN(TPACKAGE);
     /*{METHOD}              return TOKEN(TMETHOD);*/
     /*{EXTENDS}             return TOKEN(TEXTENDS);*/
     /*{POLYMORPHIC}         return TOKEN(TPOLYMORPHIC);*/
@@ -194,7 +196,7 @@ DOUBLE_CONST_HEX        {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BIN
     /*{TYPEDEF}             return TOKEN(TTYPEDEF);*/
     /*{IS}                  return TOKEN(TIS);*/
     /*{TO}                  return TOKEN(TTO);*/
-    /*{INTERFACE}               return TOKEN(TINTERFACE);*/
+{INTERFACE}               return TOKEN(TINTERFACE);
     /*{CONST}                   return TOKEN(TCONST);*/
     /*{ARRAY}                   return TOKEN(TARRAY);*/
     /*{OF}                  return TOKEN(TOF);*/
@@ -223,6 +225,8 @@ DOUBLE_CONST_HEX        {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BIN
 
     /* Identifiers */
 {IDENTIFIER}            SAVE_TOKEN; return TIDENTIFIER;
+
+{PACKAGE_NAME}          SAVE_TOKEN; return TPACKAGENAME;
 
 {INT_CONST_DEC}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_DEC; }
 {INT_CONST_OCT}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_OCT; }
@@ -268,7 +272,15 @@ DOUBLE_CONST_HEX        {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BIN
 
 {TEQUALS}               return TOKEN(TEQUALS);
 
-\n                      { yycolumn = 0; }
+[\r?\n]                 { yycolumn = 0; }
 [ \t]
-.                       { if(flex_error_callback) { std::string message = "invalid token: "; message.append(yytext); flex_error_callback(message.c_str()); } yyterminate(); } 
+.                       { 
+                            if(flex_error_callback) 
+                            { 
+                                std::stringstream ss;
+                                ss << "[invalid token (char): '" << std::hex << yytext << "']";
+                                flex_error_callback(ss.str().c_str()); 
+                            } 
+                            yyterminate(); 
+                        } 
 %%
