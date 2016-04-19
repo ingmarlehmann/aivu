@@ -9,6 +9,7 @@
 
     #include "ast/ast_node.h"
     #include "ast/ast_node_list.h"
+    #include "ast/broadcast_method.h"
     #include "ast/double_constant.h"
     #include "ast/enum_decl.h"
     #include "ast/enumerator.h"
@@ -75,6 +76,8 @@
 %token <t_token>    TMETHOD         "_method_(keyword)"
 %token <t_token>    TIN             "_in_(keyword)"
 %token <t_token>    TOUT            "_out_(keyword)"
+%token <t_token>    TBROADCAST      "_broadcast_(keyword)"
+%token <t_token>    TSELECTIVE      "_selective_(keyword)"
 
 %token <t_token>    TENUMERATION    "_enumeration_(keyword)"
 %token <t_token>    TINTEGER        "_Integer_(keyword)"
@@ -198,6 +201,18 @@ version : TVERSION TLBRACE TMAJOR int_constant TMINOR int_constant TRBRACE
 /*variable_decl_list : variable_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }*/
                    /*| variable_decl_list variable_decl { add_child($1, $2); $$ = $1; }*/
                    /*;*/
+
+method_decl : TBROADCAST identifier TLBRACE method_body TRBRACE 
+                { $$ = new ast::BroadcastMethod($2, $4, nullptr, false); }
+            | franca_comment TBROADCAST identifier TLBRACE method_body TRBRACE 
+                { $$ = new ast::BroadcastMethod($3, $5, $1, false); }
+            ;
+
+method_decl : TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
+                { $$ = new ast::BroadcastMethod($2, $5, nullptr, true); }
+            | franca_comment TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
+                { $$ = new ast::BroadcastMethod($3, $6, $1, true); }
+            ;
 
 method_decl : TMETHOD identifier TLBRACE method_body TRBRACE 
                 { $$ = new ast::MethodDecl($2, $4, nullptr); add_child($$, $2); add_child($$, $4); }

@@ -12,6 +12,7 @@ ADD_FLEX_BISON_DEPENDENCY(FidlLexer FidlParser)
 set(SOURCES 
         src/ast/ast_node.cpp
         src/ast/ast_node_list.cpp
+        src/ast/broadcast_method.cpp
         src/ast/double_constant.cpp
         src/ast/enum_decl.cpp
         src/ast/enumerator.cpp
@@ -36,6 +37,7 @@ set(SOURCES
         include/ast/ast_node.h
         include/ast/ast_node_list.h
         include/ast/ast_node_visitor.h
+        include/ast/broadcast_method.h
         include/ast/double_constant.h
         include/ast/enum_decl.h
         include/ast/enumerator.h
