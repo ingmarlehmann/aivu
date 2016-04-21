@@ -10,7 +10,7 @@ namespace fparser
 {
 namespace ast
 {
-class BroadcastMethod : public ast::ASTNode
+class BroadcastMethodDecl : public ast::ASTNode
 {
  public:
   ASTNode* name() const;
@@ -22,14 +22,14 @@ class BroadcastMethod : public ast::ASTNode
   virtual void accept(ASTNodeVisitor& visitor) override;
 
 public:
-  BroadcastMethod(ASTNode* name, ASTNode* body, ASTNode* comment, bool is_selective);
-  virtual ~BroadcastMethod();
+  BroadcastMethodDecl(ASTNode* name, ASTNode* body, ASTNode* comment, bool is_selective);
+  virtual ~BroadcastMethodDecl();
 
 private:
-  ASTNode* name_;
-  ASTNode* body_;
-  ASTNode* comment_;
-  bool is_selective_;
+  ASTNode* name_     = nullptr;
+  ASTNode* body_     = nullptr;
+  ASTNode* comment_  = nullptr;
+  bool is_selective_ = false;
 };
 } // namespace ast
 } // namespace fparser

@@ -174,7 +174,6 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
 
     /*{IMPORT}              return TOKEN(TIMPORT);*/
     /*{FROM}                    return TOKEN(TFROM);*/
-    /*{FIREANDFORGET}           return TOKEN(TFIREANDFORGET);*/
     /*{EXTENDS}             return TOKEN(TEXTENDS);*/
     /*{POLYMORPHIC}         return TOKEN(TPOLYMORPHIC);*/
     /*{STRUCT}              return TOKEN(TSTRUCT);*/
@@ -192,6 +191,7 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
     /*{ARRAY}                   return TOKEN(TARRAY);*/
     /*{OF}                  return TOKEN(TOF);*/
 
+{FIREANDFORGET}  return      TOKEN(TFIREANDFORGET);
 {METHOD}         return      TOKEN(TMETHOD);
 {BROADCAST}      return      TOKEN(TBROADCAST);
 {SELECTIVE}      return      TOKEN(TSELECTIVE);

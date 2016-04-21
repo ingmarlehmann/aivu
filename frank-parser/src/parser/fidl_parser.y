@@ -9,7 +9,7 @@
 
     #include "ast/ast_node.h"
     #include "ast/ast_node_list.h"
-    #include "ast/broadcast_method.h"
+    #include "ast/broadcast_method_decl.h"
     #include "ast/double_constant.h"
     #include "ast/enum_decl.h"
     #include "ast/enumerator.h"
@@ -56,11 +56,11 @@
 
 %union{
     fparser::ast::ASTNode* t_ast_node;
-    std::string*  t_string;
-    int           t_token;
-    long long     t_longlong;
-    float         t_float;
-    double        t_double;
+    std::string*           t_string;
+    int                    t_token;
+    long long              t_longlong;
+    float                  t_float;
+    double                 t_double;
 }
 
 %token <t_string>   TIDENTIFIER     "_identifier_(definition)"
@@ -78,6 +78,7 @@
 %token <t_token>    TOUT            "_out_(keyword)"
 %token <t_token>    TBROADCAST      "_broadcast_(keyword)"
 %token <t_token>    TSELECTIVE      "_selective_(keyword)"
+%token <t_token>    TFIREANDFORGET  "_fireAndForget_(keyword)"
 
 %token <t_token>    TENUMERATION    "_enumeration_(keyword)"
 %token <t_token>    TINTEGER        "_Integer_(keyword)"
@@ -202,22 +203,29 @@ version : TVERSION TLBRACE TMAJOR int_constant TMINOR int_constant TRBRACE
                    /*| variable_decl_list variable_decl { add_child($1, $2); $$ = $1; }*/
                    /*;*/
 
+
 method_decl : TBROADCAST identifier TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethod($2, $4, nullptr, false); }
+                { $$ = new ast::BroadcastMethodDecl($2, $4, nullptr, false); add_child($$, $2); add_child($$, $4); }
             | franca_comment TBROADCAST identifier TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethod($3, $5, $1, false); }
+                { $$ = new ast::BroadcastMethodDecl($3, $5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
             ;
 
 method_decl : TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethod($2, $5, nullptr, true); }
+                { $$ = new ast::BroadcastMethodDecl($2, $5, nullptr, true); add_child($$, $2); add_child($$, $5); }
             | franca_comment TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethod($3, $6, $1, true); }
+                { $$ = new ast::BroadcastMethodDecl($3, $6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
+            ;
+
+method_decl : TMETHOD identifier TFIREANDFORGET TLBRACE method_in_arguments TRBRACE 
+                { $$ = new ast::MethodDecl($2, $5, nullptr, true); add_child($$, $2); add_child($$, $5); }
+            | franca_comment TMETHOD identifier TFIREANDFORGET TLBRACE method_in_arguments TRBRACE
+                { $$ = new ast::MethodDecl($3, $6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
             ;
 
 method_decl : TMETHOD identifier TLBRACE method_body TRBRACE 
-                { $$ = new ast::MethodDecl($2, $4, nullptr); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::MethodDecl($2, $4, nullptr, false); add_child($$, $2); add_child($$, $4); }
             | franca_comment TMETHOD identifier TLBRACE method_body TRBRACE 
-                { $$ = new ast::MethodDecl($3, $5, $1); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
+                { $$ = new ast::MethodDecl($3, $5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
             ;
 
 method_body : method_out_arguments { $$ = new ast::MethodBody(nullptr, $1); add_child($$, $1); }
@@ -231,7 +239,7 @@ method_in_arguments : TIN TLBRACE method_argument_list TRBRACE { $$ = $3; }
 method_out_arguments : TOUT TLBRACE method_argument_list TRBRACE { $$ = $3; }
 
 method_argument_list : method_argument { $$ = new ast::ASTNodeList(); add_child($$, $1); }
-                     | method_argument_list method_argument { $$ = $1; add_child($$, $1); }
+                     | method_argument_list method_argument { $$ = $1; add_child($$, $2); }
                      ;
 
 method_argument : type identifier { $$ = new ast::MethodArgument(); add_child($$, $1); add_child($$, $2); }

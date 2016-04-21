@@ -4,6 +4,7 @@
 
 #include "ast/ast_node.h"
 #include "ast/ast_node_list.h"
+#include "ast/broadcast_method_decl.h"
 #include "ast/double_constant.h"
 #include "ast/enumerator.h"
 #include "ast/enum_decl.h"
@@ -41,7 +42,16 @@ void ASTPrintVisitor::visit(fparser::ast::MethodBody &node)
 
 void ASTPrintVisitor::visit(fparser::ast::MethodDecl &node)
 {
-  std::cout << nchars(indent_character_, indentation_) << "MethodDecl" << std::endl;
+  std::string is_fire_and_forget = node.fire_and_forget() ? "true" : "false";
+  std::cout << nchars(indent_character_, indentation_) << "MethodDecl(fireAndForget:" << is_fire_and_forget << ")" << std::endl;
+  visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::BroadcastMethodDecl &node)
+{
+  std::string is_selective = node.is_selective() ? "true" : "false";
+  std::cout << nchars(indent_character_, indentation_) << "BroadcastMethodDecl(selective:" << is_selective << ")" << std::endl;
+  //std::cout << "num children: " << node.children().size() << "\n";
   visit_children(node, *this);
 }
 
