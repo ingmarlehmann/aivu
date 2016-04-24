@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 
 project(frank-astprinter)
+
+include(GNUInstallDirs)
 
 set(SOURCES
     src/ast_print_visitor.h
@@ -19,3 +21,5 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${FRANK_PARSER_INCLUDE_DIRS}
     )
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
