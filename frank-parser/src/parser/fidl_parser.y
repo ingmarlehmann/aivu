@@ -16,6 +16,7 @@
     #include "ast/float_constant.h"
     #include "ast/franca_comment.h"
     #include "ast/identifier.h"
+    #include "ast/implicit_array_decl.h"
     #include "ast/int_constant.h"
     #include "ast/interface.h"
     #include "ast/method_argument.h"
@@ -24,6 +25,7 @@
     #include "ast/package_name.h"
     #include "ast/root.h"
     #include "ast/string_constant.h"
+    #include "ast/struct_decl.h"
     #include "ast/type.h"
     #include "ast/variable_decl.h"
     #include "ast/version.h"
@@ -80,6 +82,7 @@
 %token <t_token>    TSELECTIVE      "_selective_(keyword)"
 %token <t_token>    TFIREANDFORGET  "_fireAndForget_(keyword)"
 
+%token <t_token>    TSTRUCT         "_struct_(keyword)"
 %token <t_token>    TENUMERATION    "_enumeration_(keyword)"
 %token <t_token>    TINTEGER        "_Integer_(keyword)"
 %token <t_token>    TUINT64         "_UInt64_(keyword)"
@@ -153,6 +156,7 @@
 %type <t_ast_node> float_constant
 %type <t_ast_node> franca_comment
 %type <t_ast_node> identifier
+%type <t_ast_node> implicit_array_decl
 %type <t_ast_node> interface
 %type <t_ast_node> interface_member
 %type <t_ast_node> interface_member_list
@@ -164,6 +168,9 @@
 %type <t_ast_node> method_in_arguments
 %type <t_ast_node> method_out_arguments
 %type <t_ast_node> package_name
+%type <t_ast_node> struct_decl
+%type <t_ast_node> struct_member
+%type <t_ast_node> struct_member_list
 %type <t_ast_node> type
 %type <t_ast_node> variable_decl
 %type <t_ast_node> version
@@ -188,7 +195,7 @@ interface_member_list : interface_member { $$ = new ast::ASTNodeList(); add_chil
 
 interface_member : enum_decl { $$ = $1; }
                  | method_decl { $$ = $1; }
-                 | variable_decl { $$ = $1; } /* this is not valid! REMOVE */
+                 | struct_decl { $$ = $1; }
                  ;
 
 package_name : TPACKAGE TPACKAGENAME { $$ = new ast::PackageName(*$2); delete $2; }
@@ -199,21 +206,16 @@ version : TVERSION TLBRACE TMAJOR int_constant TMINOR int_constant TRBRACE
                 add_child($$, $4); add_child($$, $6); }
         ;
 
-/*variable_decl_list : variable_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }*/
-                   /*| variable_decl_list variable_decl { add_child($1, $2); $$ = $1; }*/
-                   /*;*/
-
-
 method_decl : TBROADCAST identifier TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethodDecl($2, $4, nullptr, false); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::BroadcastMethodDecl(*$2, *$4, nullptr, false); add_child($$, $2); add_child($$, $4); }
             | franca_comment TBROADCAST identifier TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethodDecl($3, $5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
+                { $$ = new ast::BroadcastMethodDecl(*$3, *$5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
             ;
 
 method_decl : TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethodDecl($2, $5, nullptr, true); add_child($$, $2); add_child($$, $5); }
+                { $$ = new ast::BroadcastMethodDecl(*$2, *$5, nullptr, true); add_child($$, $2); add_child($$, $5); }
             | franca_comment TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
-                { $$ = new ast::BroadcastMethodDecl($3, $6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
+                { $$ = new ast::BroadcastMethodDecl(*$3, *$6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
             ;
 
 method_decl : TMETHOD identifier TFIREANDFORGET TLBRACE method_in_arguments TRBRACE 
@@ -248,10 +250,24 @@ method_argument : type identifier { $$ = new ast::MethodArgument(); add_child($$
                         add_child($$, $1); add_child($$, $2); add_child($$, $3); }
                 ;
 
+struct_decl : TSTRUCT identifier TLBRACE struct_member_list TRBRACE 
+                { $$ = new ast::StructDecl(*$2, *$4, nullptr); add_child($$, $2); add_child($$, $4); }
+            | franca_comment TSTRUCT identifier TLBRACE struct_member_list TRBRACE 
+                { $$ = new ast::StructDecl(*$3, *$5, $1); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
+            ;
+
+struct_member_list : struct_member { $$ = new ast::ASTNodeList(); add_child($$, $1); }
+                   | struct_member_list struct_member { $$ = $1; add_child($$, $2); }
+                   ;
+
+struct_member : implicit_array_decl { $$ = $1; }
+              | variable_decl {}
+              ;
+
 enum_decl : TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
-                { $$ = new ast::EnumDecl(); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::EnumDecl(*$2, *$4, nullptr); add_child($$, $2); add_child($$, $4); }
           | franca_comment TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
-                { $$ = new ast::EnumDecl(); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
+                { $$ = new ast::EnumDecl(*$3, *$5, $1); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
           ;
 
 enumerator_list : enumerator { $$ = new ast::ASTNodeList(); add_child($$,$1); }
@@ -279,6 +295,10 @@ enumerator : identifier { $$ = new ast::Enumerator(); add_child($$, $1); }
     /*tenary_expression (a = b ? c : d) */
 
 franca_comment : TFRANCACOMMENT { $$ = new ast::FrancaComment(*$1); delete $1; }
+
+implicit_array_decl : type TLBRACKET TRBRACKET identifier 
+                        { $$ = new ast::ImplicitArrayDecl(*$1, *$4); add_child($$, $1); add_child($$, $4); }
+                    ;
 
 variable_decl : type identifier { $$ = new ast::VariableDecl(); add_child($$, $1); add_child($$, $2); }
               | type identifier TEQUALS constant { $$ = new ast::VariableDecl(); add_child($$, $2); add_child($$, $4); }

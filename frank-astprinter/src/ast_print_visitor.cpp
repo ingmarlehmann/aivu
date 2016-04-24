@@ -11,6 +11,7 @@
 #include "ast/float_constant.h"
 #include "ast/franca_comment.h"
 #include "ast/identifier.h"
+#include "ast/implicit_array_decl.h"
 #include "ast/int_constant.h"
 #include "ast/interface.h"
 #include "ast/method_argument.h"
@@ -19,6 +20,7 @@
 #include "ast/package_name.h"
 #include "ast/root.h"
 #include "ast/string_constant.h"
+#include "ast/struct_decl.h"
 #include "ast/type.h"
 #include "ast/variable_decl.h"
 #include "ast/version.h"
@@ -27,6 +29,18 @@ ASTPrintVisitor::ASTPrintVisitor() {}
 ASTPrintVisitor::ASTPrintVisitor(int indent_step_size) : indent_step_size_(indent_step_size) {}
 ASTPrintVisitor::ASTPrintVisitor(int indent_step_size, const char indent_character) : indent_step_size_(indent_step_size), indent_character_(indent_character)
 {
+}
+
+void ASTPrintVisitor::visit(fparser::ast::ImplicitArrayDecl &node)
+{
+  std::cout << nchars(indent_character_, indentation_) << "ImplicitArrayDecl" << std::endl;
+  visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::StructDecl &node)
+{
+  std::cout << nchars(indent_character_, indentation_) << "StructDecl" << std::endl;
+  visit_children(node, *this);
 }
 
 void ASTPrintVisitor::visit(fparser::ast::MethodArgument &node)
@@ -58,7 +72,7 @@ void ASTPrintVisitor::visit(fparser::ast::BroadcastMethodDecl &node)
 {
   std::string is_selective = node.is_selective() ? "true" : "false";
   std::cout << nchars(indent_character_, indentation_) << "BroadcastMethodDecl(selective:" << is_selective << ")" << std::endl;
-  //std::cout << "num children: " << node.children().size() << "\n";
+  // std::cout << "num children: " << node.children().size() << "\n";
   visit_children(node, *this);
 }
 

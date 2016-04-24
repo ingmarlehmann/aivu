@@ -106,8 +106,8 @@ TNE                     !=
     /* ===================================================== */
 TLPAREN                 (
 TRPAREN                 )
-TLBRACKET               [
-TRBRACKET               ]
+TLBRACKET               \[
+TRBRACKET               \]
 TLBRACE                 \{
 TRBRACE                 \}
 TCOMMA                  ,
@@ -176,7 +176,6 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
     /*{FROM}                    return TOKEN(TFROM);*/
     /*{EXTENDS}             return TOKEN(TEXTENDS);*/
     /*{POLYMORPHIC}         return TOKEN(TPOLYMORPHIC);*/
-    /*{STRUCT}              return TOKEN(TSTRUCT);*/
     /*{UNION}                   return TOKEN(TUNION);*/
     /*{MAP}                 return TOKEN(TMAP);*/
     /*{TYPECOLLECTION}      return TOKEN(TTYPECOLLECTION);*/
@@ -193,6 +192,7 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
 
 {FIREANDFORGET}  return      TOKEN(TFIREANDFORGET);
 {METHOD}         return      TOKEN(TMETHOD);
+{STRUCT}         return      TOKEN(TSTRUCT);
 {BROADCAST}      return      TOKEN(TBROADCAST);
 {SELECTIVE}      return      TOKEN(TSELECTIVE);
 {VERSION}        return      TOKEN(TVERSION);
@@ -264,8 +264,8 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
 
     /*{TLPAREN}               return TOKEN(TLPAREN);*/
     /*{TRPAREN}               return TOKEN(TRPAREN);*/
-    /*{TLBRACKET}             return TOKEN(TLBRACKET);*/
-    /*{TRBRACKET}             return TOKEN(TRBRACKET);*/
+{TLBRACKET}             return TOKEN(TLBRACKET);
+{TRBRACKET}             return TOKEN(TRBRACKET);
 {TLBRACE}               return TOKEN(TLBRACE);
 {TRBRACE}               return TOKEN(TRBRACE);
     /*{TCOMMA}                return TOKEN(TCOMMA);*/

@@ -20,6 +20,7 @@ class ASTPrintVisitor : public fparser::ast::ASTNodeVisitor
   virtual void visit(fparser::ast::FloatConstant&       node) override;
   virtual void visit(fparser::ast::FrancaComment&       node) override;
   virtual void visit(fparser::ast::Identifier&          node) override;
+  virtual void visit(fparser::ast::ImplicitArrayDecl&   node) override;
   virtual void visit(fparser::ast::IntConstant&         node) override;
   virtual void visit(fparser::ast::Interface&           node) override;
   virtual void visit(fparser::ast::MethodArgument&      node) override;
@@ -28,6 +29,7 @@ class ASTPrintVisitor : public fparser::ast::ASTNodeVisitor
   virtual void visit(fparser::ast::PackageName&         node) override;
   virtual void visit(fparser::ast::Root&                node) override;
   virtual void visit(fparser::ast::StringConstant&      node) override;
+  virtual void visit(fparser::ast::StructDecl&          node) override;
   virtual void visit(fparser::ast::Type&                node) override;
   virtual void visit(fparser::ast::VariableDecl&        node) override;
   virtual void visit(fparser::ast::Version&             node) override;

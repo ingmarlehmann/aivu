@@ -2,6 +2,12 @@ package org.franca_parser.test
 
 interface TestStructs
 {
+    version
+    {
+        major 0
+        minor 1
+    }
+
     struct TestStruct
     {
         UInt8 an_integer

@@ -19,6 +19,7 @@ set(SOURCES
         src/ast/float_constant.cpp
         src/ast/franca_comment.cpp
         src/ast/identifier.cpp
+        src/ast/implicit_array_decl.cpp
         src/ast/int_constant.cpp
         src/ast/interface.cpp
         src/ast/method_argument.cpp
@@ -27,6 +28,7 @@ set(SOURCES
         src/ast/package_name.cpp
         src/ast/root.cpp
         src/ast/string_constant.cpp
+        src/ast/struct_decl.cpp
         src/ast/type.cpp
         src/ast/variable_decl.cpp
         src/ast/version.cpp
@@ -44,6 +46,7 @@ set(SOURCES
         include/ast/float_constant.h
         include/ast/franca_comment.h
         include/ast/identifier.h
+        include/ast/implicit_array_decl.h
         include/ast/int_constant.h
         include/ast/interface.h
         include/ast/method_argument.h
@@ -52,6 +55,7 @@ set(SOURCES
         include/ast/package_name.h
         include/ast/root.h
         include/ast/string_constant.h
+        include/ast/struct_decl.h
         include/ast/type.h
         include/ast/variable_decl.h
         include/ast/version.h

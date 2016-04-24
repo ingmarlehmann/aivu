@@ -11,11 +11,14 @@ namespace ast
 class DoubleConstant : public ast::ASTNode
 {
  public:
-  DoubleConstant(double value);
-  virtual ~DoubleConstant();
+  double value() const;
 
  public:
   virtual void accept(ASTNodeVisitor& visitor) override;
+ 
+ public:
+  DoubleConstant(double value);
+  virtual ~DoubleConstant();
 
  private:
   double value_;

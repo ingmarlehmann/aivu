@@ -9,6 +9,7 @@ namespace ast
 {
 DoubleConstant::DoubleConstant(double value) : value_(value) {}
 DoubleConstant::~DoubleConstant(){}
+double DoubleConstant::value() const { return value_; }
 void DoubleConstant::accept(ASTNodeVisitor& visitor) { visitor.visit(*this); }
 } // namespace ast
 } // namespace fparser
