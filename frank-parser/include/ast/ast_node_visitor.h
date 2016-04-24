@@ -28,25 +28,25 @@ class Version;
 class ASTNodeVisitor
 {
  public:
-  virtual void visit(ast::ASTNodeList&         node) { (void)node; }
-  virtual void visit(ast::BroadcastMethodDecl& node) { (void)node; }
-  virtual void visit(ast::DoubleConstant&      node) { (void)node; }
-  virtual void visit(ast::EnumDecl&            node) { (void)node; }
-  virtual void visit(ast::Enumerator&          node) { (void)node; }
-  virtual void visit(ast::FloatConstant&       node) { (void)node; }
-  virtual void visit(ast::FrancaComment&       node) { (void)node; }
-  virtual void visit(ast::Identifier&          node) { (void)node; }
-  virtual void visit(ast::IntConstant&         node) { (void)node; }
-  virtual void visit(ast::Interface&           node) { (void)node; }
-  virtual void visit(ast::MethodArgument&      node) { (void)node; }
-  virtual void visit(ast::MethodBody&          node) { (void)node; }
-  virtual void visit(ast::MethodDecl&          node) { (void)node; }
-  virtual void visit(ast::PackageName&         node) { (void)node; }
-  virtual void visit(ast::Root&                node) { (void)node; }
-  virtual void visit(ast::StringConstant&      node) { (void)node; }
-  virtual void visit(ast::Type&                node) { (void)node; }
-  virtual void visit(ast::VariableDecl&        node) { (void)node; }
-  virtual void visit(ast::Version&             node) { (void)node; }
+  virtual void visit(ast::ASTNodeList&         node)  = 0;
+  virtual void visit(ast::BroadcastMethodDecl& node)  = 0;
+  virtual void visit(ast::DoubleConstant&      node)  = 0;
+  virtual void visit(ast::EnumDecl&            node)  = 0;
+  virtual void visit(ast::Enumerator&          node)  = 0;
+  virtual void visit(ast::FloatConstant&       node)  = 0;
+  virtual void visit(ast::FrancaComment&       node)  = 0;
+  virtual void visit(ast::Identifier&          node)  = 0;
+  virtual void visit(ast::IntConstant&         node)  = 0;
+  virtual void visit(ast::Interface&           node)  = 0;
+  virtual void visit(ast::MethodArgument&      node)  = 0;
+  virtual void visit(ast::MethodBody&          node)  = 0;
+  virtual void visit(ast::MethodDecl&          node)  = 0;
+  virtual void visit(ast::PackageName&         node)  = 0;
+  virtual void visit(ast::Root&                node)  = 0;
+  virtual void visit(ast::StringConstant&      node)  = 0;
+  virtual void visit(ast::Type&                node)  = 0;
+  virtual void visit(ast::VariableDecl&        node)  = 0;
+  virtual void visit(ast::Version&             node)  = 0;
 
   virtual ~ASTNodeVisitor() { }
 };

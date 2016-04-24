@@ -6,16 +6,17 @@
 #include "ast/ast_node_list.h"
 #include "ast/broadcast_method_decl.h"
 #include "ast/double_constant.h"
-#include "ast/enumerator.h"
 #include "ast/enum_decl.h"
+#include "ast/enumerator.h"
 #include "ast/float_constant.h"
 #include "ast/franca_comment.h"
 #include "ast/identifier.h"
-#include "ast/interface.h"
 #include "ast/int_constant.h"
+#include "ast/interface.h"
 #include "ast/method_argument.h"
 #include "ast/method_body.h"
 #include "ast/method_decl.h"
+#include "ast/package_name.h"
 #include "ast/root.h"
 #include "ast/string_constant.h"
 #include "ast/type.h"
@@ -44,6 +45,12 @@ void ASTPrintVisitor::visit(fparser::ast::MethodDecl &node)
 {
   std::string is_fire_and_forget = node.fire_and_forget() ? "true" : "false";
   std::cout << nchars(indent_character_, indentation_) << "MethodDecl(fireAndForget:" << is_fire_and_forget << ")" << std::endl;
+  visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::PackageName &node)
+{
+  std::cout << nchars(indent_character_, indentation_) << "PackageName(" << node.package_name() << ")" << std::endl;
   visit_children(node, *this);
 }
 
