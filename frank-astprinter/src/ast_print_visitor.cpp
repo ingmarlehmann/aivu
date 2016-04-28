@@ -12,6 +12,7 @@
 #include "ast/franca_comment.h"
 #include "ast/identifier.h"
 #include "ast/implicit_array_decl.h"
+#include "ast/import_decl.h"
 #include "ast/int_constant.h"
 #include "ast/interface.h"
 #include "ast/method_argument.h"
@@ -59,6 +60,12 @@ void ASTPrintVisitor::visit(fparser::ast::MethodDecl &node)
 {
   std::string is_fire_and_forget = node.fire_and_forget() ? "true" : "false";
   std::cout << nchars(indent_character_, indentation_) << "MethodDecl(fireAndForget:" << is_fire_and_forget << ")" << std::endl;
+  visit_children(node, *this);
+}
+
+void ASTPrintVisitor::visit(fparser::ast::ImportDecl &node)
+{
+  std::cout << nchars(indent_character_, indentation_) << "ImportDecl()" << std::endl;
   visit_children(node, *this);
 }
 

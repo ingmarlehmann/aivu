@@ -16,6 +16,7 @@
     #include "ast/float_constant.h"
     #include "ast/franca_comment.h"
     #include "ast/identifier.h"
+    #include "ast/import_decl.h"
     #include "ast/implicit_array_decl.h"
     #include "ast/int_constant.h"
     #include "ast/interface.h"
@@ -31,10 +32,61 @@
     #include "ast/version.h"
 
     using namespace fparser;
-    std::function<void(const char*)> bison_error_callback;
-
+    
+    // Global methods
     extern int yylex();
-    extern int yylineno;
+    
+    // Global variables
+    std::function<void(const char*)>    bison_error_callback;
+    ast::Root*                          root_node = new ast::Root();
+    extern int                          yylineno;
+
+    class ParserDriver
+    {
+      public:
+        ParserDriver() {}
+        ~ParserDriver() {}
+
+      public:
+        void parse_include(const std::string& file)
+        {
+            // Save current state:
+            // FILE* incfile = fopen(file.c_str(), "r");
+            //
+            // YY_BUFFER_STATE buf_state = yy_create_buffer(incfile, YY_BUF_SIZE);
+            // yypush_buffer_state(buf_state);
+            //
+            // parse()
+            //
+            // yypop_buffer_state();
+            //
+        }
+
+        void enter_scope()
+        {
+            /*printf("current scope %d\n", current_scope_);*/
+            ++current_scope_;
+            /*printf("entering scope %d\n", current_scope_);*/
+        }
+
+        void exit_scope()
+        {
+            /*printf("exiting scope %d\n", current_scope_);*/
+            --current_scope_;
+            /*printf("current scope %d\n", current_scope_);*/
+        }
+
+      private:
+        struct ParserFileState
+        {
+            long int file_pos_ = 0;
+            FILE* file_ = nullptr;
+        };
+      
+        std::vector<ParserFileState> include_file_stack_;
+        int current_scope_ = 0;
+    };
+
     void yyerror(const char *s) 
     { 
         if(bison_error_callback)
@@ -43,12 +95,12 @@
         }
     }
 
-    ast::Root* root_node = new ast::Root();
-    
     void add_child(ast::ASTNode* parent, ast::ASTNode* child)
     {
         parent->children().push_back(child);
     }
+
+    ParserDriver parser_driver;
 %}
 
 %define parse.error verbose
@@ -65,11 +117,16 @@
     double                 t_double;
 }
 
-%token <t_string>   TIDENTIFIER     "_identifier_(definition)"
-%token <t_string>   TPACKAGENAME    "_package name_(definition)"
-%token <t_string>   TFRANCACOMMENT  "_franca comment_(definition)"
-%token <t_string>   TCCOMMENT       "_c-style comment_(definition)"
+%token <t_string>   TIDENTIFIER         "_identifier_(definition)"
+%token <t_string>   TPACKAGENAME        "_package name_(definition)"
+%token <t_string>   TFRANCACOMMENT      "_franca comment_(definition)"
+%token <t_string>   TCCOMMENT           "_c-style comment_(definition)"
+%token <t_string>   TNAMESPACE_IMPORT   "_namespace import_(definition)"
+%token <t_string>   TSTRING_CONST       "_string constant_(definition)"
 
+%token <t_token>    TIMPORT         "_import_(keyword)"
+%token <t_token>    TMODEL          "_model_(keyword)"
+%token <t_token>    TFROM           "_from_(keyword)"
 %token <t_token>    TINTERFACE      "_interface_(keyword)"
 %token <t_token>    TPACKAGE        "_package_(keyword)"
 %token <t_token>    TVERSION        "_version_(keyword)"
@@ -157,35 +214,57 @@
 %type <t_ast_node> franca_comment
 %type <t_ast_node> identifier
 %type <t_ast_node> implicit_array_decl
+%type <t_ast_node> import_decl
+%type <t_ast_node> import_decl_list
+%type <t_ast_node> int_constant
 %type <t_ast_node> interface
 %type <t_ast_node> interface_member
 %type <t_ast_node> interface_member_list
-%type <t_ast_node> int_constant
 %type <t_ast_node> method_argument
 %type <t_ast_node> method_argument_list
-%type <t_ast_node> method_decl
 %type <t_ast_node> method_body
+%type <t_ast_node> method_decl
 %type <t_ast_node> method_in_arguments
 %type <t_ast_node> method_out_arguments
+%type <t_ast_node> namespace_import
 %type <t_ast_node> package_name
+%type <t_ast_node> string_constant
 %type <t_ast_node> struct_decl
 %type <t_ast_node> struct_member
 %type <t_ast_node> struct_member_list
 %type <t_ast_node> type
 %type <t_ast_node> variable_decl
 %type <t_ast_node> version
+%type <t_token>    lbrace
+%type <t_token>    rbrace
 /*%type <t_ast_node> variable_decl_list   "Variable declarator list"*/
 
 %start document
 
 %%
 
-document : package_name interface { add_child(root_node, $1); add_child(root_node, $2); }
-              ;
+document : package_name import_decl_list interface 
+            { add_child(root_node, $1); add_child(root_node, $2); add_child(root_node, $3); }
+         | package_name interface 
+            { add_child(root_node, $1); add_child(root_node, $2); }
+         ;
 
-interface : TINTERFACE identifier TLBRACE version interface_member_list TRBRACE 
+import_decl_list : import_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }
+                 | import_decl_list import_decl { $$ = $1; add_child($$, $2); }
+                 ;
+
+import_decl : TIMPORT TMODEL string_constant 
+                { $$ = new ast::ImportDecl(*$3, nullptr); add_child($$, $3); }
+            | TIMPORT namespace_import TFROM string_constant 
+                { $$ = new ast::ImportDecl(*$4, $2); add_child($$, $4); add_child($$, $2); }
+            ;
+
+namespace_import : TNAMESPACE_IMPORT { $$ = new ast::StringConstant(*$1); delete $1; }
+                 ;
+
+interface : TINTERFACE identifier lbrace version interface_member_list rbrace 
                 { $$ = new ast::Interface(); add_child($$, $2); add_child($$, $4); add_child($$, $5); }
-          | franca_comment TINTERFACE identifier TLBRACE version interface_member_list TRBRACE 
+          | franca_comment TINTERFACE identifier lbrace version interface_member_list rbrace 
                 { $$ = new ast::Interface(); add_child($$, $1); add_child($$, $3); add_child($$, $5); add_child($$, $6); }
           ;
 
@@ -201,32 +280,32 @@ interface_member : enum_decl { $$ = $1; }
 package_name : TPACKAGE TPACKAGENAME { $$ = new ast::PackageName(*$2); delete $2; }
              ;
 
-version : TVERSION TLBRACE TMAJOR int_constant TMINOR int_constant TRBRACE
+version : TVERSION lbrace TMAJOR int_constant TMINOR int_constant rbrace
             { $$ = new ast::Version(*dynamic_cast<ast::IntConstant*>($4), *dynamic_cast<ast::IntConstant*>($6)); 
                 add_child($$, $4); add_child($$, $6); }
         ;
 
-method_decl : TBROADCAST identifier TLBRACE method_body TRBRACE 
+method_decl : TBROADCAST identifier lbrace method_body rbrace 
                 { $$ = new ast::BroadcastMethodDecl(*$2, *$4, nullptr, false); add_child($$, $2); add_child($$, $4); }
-            | franca_comment TBROADCAST identifier TLBRACE method_body TRBRACE 
+            | franca_comment TBROADCAST identifier lbrace method_body rbrace 
                 { $$ = new ast::BroadcastMethodDecl(*$3, *$5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
             ;
 
-method_decl : TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
+method_decl : TBROADCAST identifier TSELECTIVE lbrace method_body rbrace 
                 { $$ = new ast::BroadcastMethodDecl(*$2, *$5, nullptr, true); add_child($$, $2); add_child($$, $5); }
-            | franca_comment TBROADCAST identifier TSELECTIVE TLBRACE method_body TRBRACE 
+            | franca_comment TBROADCAST identifier TSELECTIVE lbrace method_body rbrace 
                 { $$ = new ast::BroadcastMethodDecl(*$3, *$6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
             ;
 
-method_decl : TMETHOD identifier TFIREANDFORGET TLBRACE method_in_arguments TRBRACE 
+method_decl : TMETHOD identifier TFIREANDFORGET lbrace method_in_arguments rbrace 
                 { $$ = new ast::MethodDecl($2, $5, nullptr, true); add_child($$, $2); add_child($$, $5); }
-            | franca_comment TMETHOD identifier TFIREANDFORGET TLBRACE method_in_arguments TRBRACE
+            | franca_comment TMETHOD identifier TFIREANDFORGET lbrace method_in_arguments rbrace
                 { $$ = new ast::MethodDecl($3, $6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
             ;
 
-method_decl : TMETHOD identifier TLBRACE method_body TRBRACE 
+method_decl : TMETHOD identifier lbrace method_body rbrace 
                 { $$ = new ast::MethodDecl($2, $4, nullptr, false); add_child($$, $2); add_child($$, $4); }
-            | franca_comment TMETHOD identifier TLBRACE method_body TRBRACE 
+            | franca_comment TMETHOD identifier lbrace method_body rbrace 
                 { $$ = new ast::MethodDecl($3, $5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
             ;
 
@@ -237,8 +316,8 @@ method_body : method_out_arguments { $$ = new ast::MethodBody(nullptr, $1); add_
                 { $$ = new ast::MethodBody($1, $2); add_child($$, $2); add_child($$, $1); }
             ;
 
-method_in_arguments : TIN TLBRACE method_argument_list TRBRACE { $$ = $3; }
-method_out_arguments : TOUT TLBRACE method_argument_list TRBRACE { $$ = $3; }
+method_in_arguments : TIN lbrace method_argument_list rbrace { $$ = $3; }
+method_out_arguments : TOUT lbrace method_argument_list rbrace { $$ = $3; }
 
 method_argument_list : method_argument { $$ = new ast::ASTNodeList(); add_child($$, $1); }
                      | method_argument_list method_argument { $$ = $1; add_child($$, $2); }
@@ -250,9 +329,9 @@ method_argument : type identifier { $$ = new ast::MethodArgument(); add_child($$
                         add_child($$, $1); add_child($$, $2); add_child($$, $3); }
                 ;
 
-struct_decl : TSTRUCT identifier TLBRACE struct_member_list TRBRACE 
+struct_decl : TSTRUCT identifier lbrace struct_member_list rbrace 
                 { $$ = new ast::StructDecl(*$2, *$4, nullptr); add_child($$, $2); add_child($$, $4); }
-            | franca_comment TSTRUCT identifier TLBRACE struct_member_list TRBRACE 
+            | franca_comment TSTRUCT identifier lbrace struct_member_list rbrace 
                 { $$ = new ast::StructDecl(*$3, *$5, $1); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
             ;
 
@@ -264,9 +343,9 @@ struct_member : implicit_array_decl { $$ = $1; }
               | variable_decl {}
               ;
 
-enum_decl : TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
+enum_decl : TENUMERATION identifier lbrace enumerator_list rbrace 
                 { $$ = new ast::EnumDecl(*$2, *$4, nullptr); add_child($$, $2); add_child($$, $4); }
-          | franca_comment TENUMERATION identifier TLBRACE enumerator_list TRBRACE 
+          | franca_comment TENUMERATION identifier lbrace enumerator_list rbrace 
                 { $$ = new ast::EnumDecl(*$3, *$5, $1); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
           ;
 
@@ -279,20 +358,6 @@ enumerator : identifier { $$ = new ast::Enumerator(); add_child($$, $1); }
            | franca_comment identifier { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $2); }
            | franca_comment identifier TEQUALS int_constant { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $2); add_child($$, $4); }
            ;
-
-/*expression : unary_expression {  }*/
-           /*| binary_expression {  }*/
-           /*| constant {  }*/
-           /*;*/
-
-/*unary_expression : {} ;*/
-/*binary_expression : {} ;*/
-
-/*constant : */
-
-    /*unary_expression (++x, x++, !x, ...)*/
-    /*binary_expression (x = y+z, d = 5*10, ...)*/
-    /*tenary_expression (a = b ? c : d) */
 
 franca_comment : TFRANCACOMMENT { $$ = new ast::FrancaComment(*$1); delete $1; }
 
@@ -309,6 +374,10 @@ identifier : TIDENTIFIER { $$ = new ast::Identifier(*$1); delete $1; }
 constant : int_constant { $$ = $1; }
          | float_constant { $$ = $1; }
          | double_constant { $$ = $1; }
+         ;
+
+string_constant : TSTRING_CONST { $$ = new ast::StringConstant(*$1); delete $1; }
+                ;
 
 int_constant : TINT_CONST_DEC { $$ = new ast::IntConstant($1); }
          | TINT_CONST_OCT { $$ = new ast::IntConstant($1); }
@@ -341,6 +410,9 @@ type : TINTEGER    { $$ = new ast::Type(0,  std::string("Integer")); }
      | TSTRING     { $$ = new ast::Type(0,  std::string("String")); }
      | TBYTEBUFFER { $$ = new ast::Type(0,  std::string("ByteBuffer")); }
     ;
+
+lbrace : TLBRACE { parser_driver.enter_scope(); }
+rbrace : TRBRACE { parser_driver.exit_scope(); }
 
 %%
 

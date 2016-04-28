@@ -12,12 +12,14 @@ namespace ast
 class StringConstant : public ast::ASTNode
 {
  public:
-  StringConstant(const std::string& value);
-  virtual ~StringConstant();
-
+  const std::string& value() const;
+  
  public:
   virtual void accept(ASTNodeVisitor& visitor) override;
-  const std::string& value() const;
+ 
+ public:
+  StringConstant(const std::string& value);
+  virtual ~StringConstant();
 
  private:
   std::string value_;

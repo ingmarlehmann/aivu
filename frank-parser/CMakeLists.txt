@@ -20,6 +20,7 @@ set(SOURCES
         src/ast/franca_comment.cpp
         src/ast/identifier.cpp
         src/ast/implicit_array_decl.cpp
+        src/ast/import_decl.cpp
         src/ast/int_constant.cpp
         src/ast/interface.cpp
         src/ast/method_argument.cpp
@@ -47,6 +48,7 @@ set(SOURCES
         include/ast/franca_comment.h
         include/ast/identifier.h
         include/ast/implicit_array_decl.h
+        include/ast/import_decl.h
         include/ast/int_constant.h
         include/ast/interface.h
         include/ast/method_argument.h

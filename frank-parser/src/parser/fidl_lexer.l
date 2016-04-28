@@ -31,6 +31,7 @@ ATTRIBUTE               attribute
 
 IMPORT                  import
 FROM                    from
+MODEL                   model
 VERSION                 version
 BROADCAST               broadcast
 SELECTIVE               selective
@@ -162,8 +163,11 @@ FLOAT_CONST_HEX         {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BIN
 DOUBLE_CONST_HEX        {HEX_PREFIX}({HEX_DIGITS}|{HEX_FRACTIONAL_CONSTANT}){BINARY_EXPONENT_PART}[Dd]?
     /* ===================================================== */
 
+STRING_CONST            \"(\\.|[^"])*\" 
+
 PACKAGE_NAME_ID         [a-zA-Z_]{1}[a-zA-Z0-9_]*
 PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
+NAMESPACE_IMPORT        {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*\.\*
 %%
 
     /*                   */
@@ -172,8 +176,6 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
     /*                   */
     /*{ATTRIBUTE}               return TOKEN(TATTRIBUTE);*/
 
-    /*{IMPORT}              return TOKEN(TIMPORT);*/
-    /*{FROM}                    return TOKEN(TFROM);*/
     /*{EXTENDS}             return TOKEN(TEXTENDS);*/
     /*{POLYMORPHIC}         return TOKEN(TPOLYMORPHIC);*/
     /*{UNION}                   return TOKEN(TUNION);*/
@@ -190,6 +192,9 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
     /*{ARRAY}                   return TOKEN(TARRAY);*/
     /*{OF}                  return TOKEN(TOF);*/
 
+{IMPORT}         return      TOKEN(TIMPORT);
+{FROM}           return      TOKEN(TFROM);
+{MODEL}          return      TOKEN(TMODEL);
 {FIREANDFORGET}  return      TOKEN(TFIREANDFORGET);
 {METHOD}         return      TOKEN(TMETHOD);
 {STRUCT}         return      TOKEN(TSTRUCT);
@@ -223,13 +228,15 @@ PACKAGE_NAME            {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*
 {STRING}         return      TOKEN(TSTRING);
 {BYTEBUFFER}     return      TOKEN(TBYTEBUFFER);
 
-{FRANCA_COMMENT} SAVE_TOKEN; return TFRANCACOMMENT;
-{C_COMMENT}      SAVE_TOKEN; return TCCOMMENT;
+{FRANCA_COMMENT}        SAVE_TOKEN; return TFRANCACOMMENT;
+{C_COMMENT}             SAVE_TOKEN; return TCCOMMENT;
+{NAMESPACE_IMPORT}      SAVE_TOKEN; return TNAMESPACE_IMPORT;
+{STRING_CONST}          SAVE_TOKEN; return TSTRING_CONST;
 
     /* Identifiers */
-{IDENTIFIER}     SAVE_TOKEN; return TIDENTIFIER;
+{IDENTIFIER}            SAVE_TOKEN; return TIDENTIFIER;
 
-{PACKAGE_NAME}   SAVE_TOKEN; return TPACKAGENAME;
+{PACKAGE_NAME}          SAVE_TOKEN; return TPACKAGENAME;
 
 {INT_CONST_DEC}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_DEC; }
 {INT_CONST_OCT}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_OCT; }

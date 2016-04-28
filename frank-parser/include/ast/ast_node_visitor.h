@@ -14,6 +14,7 @@ class FloatConstant;
 class FrancaComment;
 class Identifier;
 class ImplicitArrayDecl;
+class ImportDecl;
 class IntConstant;
 class Interface;
 class MethodArgument;
@@ -39,6 +40,7 @@ class ASTNodeVisitor
   virtual void visit(ast::FrancaComment&       node)  = 0;
   virtual void visit(ast::Identifier&          node)  = 0;
   virtual void visit(ast::ImplicitArrayDecl&   node)  = 0;
+  virtual void visit(ast::ImportDecl&          node)  = 0;
   virtual void visit(ast::IntConstant&         node)  = 0;
   virtual void visit(ast::Interface&           node)  = 0;
   virtual void visit(ast::MethodArgument&      node)  = 0;
