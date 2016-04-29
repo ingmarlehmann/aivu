@@ -20,7 +20,7 @@ class Interface;
 class MethodArgument;
 class MethodBody;
 class MethodDecl;
-class PackageName;
+class Package;
 class Root;
 class StringConstant;
 class StructDecl;
@@ -46,7 +46,7 @@ class ASTNodeVisitor
   virtual void visit(ast::MethodArgument&      node)  = 0;
   virtual void visit(ast::MethodBody&          node)  = 0;
   virtual void visit(ast::MethodDecl&          node)  = 0;
-  virtual void visit(ast::PackageName&         node)  = 0;
+  virtual void visit(ast::Package&             node)  = 0;
   virtual void visit(ast::Root&                node)  = 0;
   virtual void visit(ast::StringConstant&      node)  = 0;
   virtual void visit(ast::StructDecl&          node)  = 0;

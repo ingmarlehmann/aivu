@@ -26,7 +26,7 @@ set(SOURCES
         src/ast/method_argument.cpp
         src/ast/method_body.cpp
         src/ast/method_decl.cpp
-        src/ast/package_name.cpp
+        src/ast/package.cpp
         src/ast/root.cpp
         src/ast/string_constant.cpp
         src/ast/struct_decl.cpp
@@ -54,7 +54,7 @@ set(SOURCES
         include/ast/method_argument.h
         include/ast/method_body.h
         include/ast/method_decl.h
-        include/ast/package_name.h
+        include/ast/package.h
         include/ast/root.h
         include/ast/string_constant.h
         include/ast/struct_decl.h

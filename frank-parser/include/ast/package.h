@@ -9,7 +9,7 @@ namespace fparser
 {
 namespace ast
 {
-class PackageName : public ast::ASTNode
+class Package : public ast::ASTNode
 {
  public:
   const std::string& package_name() const;
@@ -18,8 +18,8 @@ class PackageName : public ast::ASTNode
   virtual void accept(ASTNodeVisitor& visitor) override;
 
 public:
-  PackageName(const std::string& package_name);
-  virtual ~PackageName();
+  Package(const std::string& package_name);
+  virtual ~Package();
 
 private:
   std::string package_name_; 

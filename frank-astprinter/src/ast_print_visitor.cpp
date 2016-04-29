@@ -18,7 +18,7 @@
 #include "ast/method_argument.h"
 #include "ast/method_body.h"
 #include "ast/method_decl.h"
-#include "ast/package_name.h"
+#include "ast/package.h"
 #include "ast/root.h"
 #include "ast/string_constant.h"
 #include "ast/struct_decl.h"
@@ -69,9 +69,9 @@ void ASTPrintVisitor::visit(fparser::ast::ImportDecl &node)
   visit_children(node, *this);
 }
 
-void ASTPrintVisitor::visit(fparser::ast::PackageName &node)
+void ASTPrintVisitor::visit(fparser::ast::Package &node)
 {
-  std::cout << nchars(indent_character_, indentation_) << "PackageName(" << node.package_name() << ")" << std::endl;
+  std::cout << nchars(indent_character_, indentation_) << "Package(" << node.package_name() << ")" << std::endl;
   visit_children(node, *this);
 }
 

@@ -23,7 +23,7 @@
     #include "ast/method_argument.h"
     #include "ast/method_body.h"
     #include "ast/method_decl.h"
-    #include "ast/package_name.h"
+    #include "ast/package.h"
     #include "ast/root.h"
     #include "ast/string_constant.h"
     #include "ast/struct_decl.h"
@@ -170,8 +170,8 @@
 %token <t_double>   TDOUBLE_CONST       "_double_constant_"
 %token <t_double>   TDOUBLE_CONST_HEX   "_double_constant_hex_"
 
-%token <t_token>    TPLUS       "_+_"
-%token <t_token>    TMINUS
+%token <t_token>    TPLUS           "_ + (operator)_"
+%token <t_token>    TMINUS          "_ - (operator)_"
 %token <t_token>    TTIMES
 %token <t_token>    TDIVIDE
 %token <t_token>    TMOD
@@ -227,7 +227,7 @@
 %type <t_ast_node> method_in_arguments
 %type <t_ast_node> method_out_arguments
 %type <t_ast_node> namespace_import
-%type <t_ast_node> package_name
+%type <t_ast_node> package
 %type <t_ast_node> string_constant
 %type <t_ast_node> struct_decl
 %type <t_ast_node> struct_member
@@ -243,10 +243,10 @@
 
 %%
 
-document : package_name import_decl_list interface 
-            { add_child(root_node, $1); add_child(root_node, $2); add_child(root_node, $3); }
-         | package_name interface 
-            { add_child(root_node, $1); add_child(root_node, $2); }
+document : package import_decl_list interface 
+            { add_child(root_node, $1); add_child($1, $2); add_child($1, $3); }
+         | package interface 
+            { add_child(root_node, $1); add_child($1, $2); }
          ;
 
 import_decl_list : import_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }
@@ -277,7 +277,7 @@ interface_member : enum_decl { $$ = $1; }
                  | struct_decl { $$ = $1; }
                  ;
 
-package_name : TPACKAGE TPACKAGENAME { $$ = new ast::PackageName(*$2); delete $2; }
+package : TPACKAGE TPACKAGENAME { $$ = new ast::Package(*$2); delete $2; }
              ;
 
 version : TVERSION lbrace TMAJOR int_constant TMINOR int_constant rbrace
