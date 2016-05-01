@@ -1,6 +1,7 @@
 %{
     #define YYDEBUG 1
 
+    #include <iostream>
     #include <vector>
     #include <cstdio>
     #include <string>
@@ -31,15 +32,30 @@
     #include "ast/variable_decl.h"
     #include "ast/version.h"
 
+	#include "parser.h"
+    #include "gen_bison_parser.hpp"
+
+    #include "gen_flex_defines.h"
+
     using namespace fparser;
-    
+   
+	/*int yylex(YYSTYPE* lvalp, YYLTYPE* llocp);*/
+	
+	void yyerror(YYLTYPE* locp, const char* err)
+   	{
+      std::cout << locp->first_line << ":" << err << std::endl;
+   	}
+
+ 
     // Global methods
-    extern int yylex();
+    /*extern int yylex();*/
+   /*extern int yylex(YYSTYPE* yylval_param, YYLTYPE* yylloc_param, yyscan_t yyscanner);*/
+
     
     // Global variables
     std::function<void(const char*)>    bison_error_callback;
     ast::Root*                          root_node = new ast::Root();
-    extern int                          yylineno;
+    /*extern int                          yylineno;*/
 
     class ParserDriver
     {
@@ -87,13 +103,25 @@
         int current_scope_ = 0;
     };
 
-    void yyerror(const char *s) 
-    { 
-        if(bison_error_callback)
-        {
-            bison_error_callback(s);
-        }
-    }
+    /*void yyerror(char const* msg)*/
+    /*{*/
+        /*if(bison_error_callback)*/
+        /*{*/
+            /*bison_error_callback(msg);*/
+        /*}*/
+    /*}*/
+
+	/*struct YYLTYPE;*/
+
+    /*void* scanner = nullptr;*/
+
+	void yyerror(YYLTYPE *locp, void* scanner, char const *msg)
+	{
+		if(bison_error_callback)
+		{
+			bison_error_callback(msg);
+		}
+	}
 
     void add_child(ast::ASTNode* parent, ast::ASTNode* child)
     {
@@ -101,12 +129,24 @@
     }
 
     ParserDriver parser_driver;
+    
+    typedef void* yyscan_t;
+
+    /*#define scanner parser->lexer_*/
 %}
 
-%define parse.error verbose
+%define api.pure full
+    /*%define api.prefix {FidlParser_}*/
+%locations
 %define parse.trace
 %define parse.lac full
-%locations
+%define parse.error verbose
+
+%parse-param { void* scanner }
+%lex-param   { void* scanner }
+
+    /*%token-table*/
+    /*%glr-parser*/
 
 %union{
     fparser::ast::ASTNode* t_ast_node;
@@ -195,14 +235,14 @@
 %token <t_token>    TRPAREN
 %token <t_token>    TLBRACKET
 %token <t_token>    TRBRACKET
-%token <t_token>    TLBRACE
-%token <t_token>    TRBRACE
+%token <t_token>    TLBRACE         "_{_(delimiter)"
+%token <t_token>    TRBRACE         "_}_(delimiter)"
 %token <t_token>    TCOMMA
 %token <t_token>    TPERIOD
 %token <t_token>    TSEMI
 %token <t_token>    TCOLON
 
-%token <t_token>    TEQUALS
+%token <t_token>    TEQUALS         "_=_(operator)"
 
 %type <t_ast_node> constant
 %type <t_ast_node> document
@@ -416,3 +456,19 @@ rbrace : TRBRACE { parser_driver.exit_scope(); }
 
 %%
 
+/*#include "gen_flex_defines.h"*/
+
+int
+yyerror(YYLTYPE *locp, char *msg) {
+  if (locp) {
+    fprintf(stderr, "parse error: %s (:%d.%d -> :%d.%d)\n",
+                    msg,
+                    locp->first_line, locp->first_column,
+                    locp->last_line,  locp->last_column
+    );
+    /* todo: add some fancy ^^^^^ error handling here */
+  } else {
+    fprintf(stderr, "parse error: %s\n", msg);
+  }
+  return (0);
+}

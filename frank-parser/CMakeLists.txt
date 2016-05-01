@@ -5,8 +5,18 @@ project(frank-parser)
 find_package(BISON)
 find_package(FLEX)
 
-BISON_TARGET(FidlParser src/parser/fidl_parser.y ${CMAKE_CURRENT_BINARY_DIR}/gen_bison_parser.cpp)
-FLEX_TARGET(FidlLexer src/parser/fidl_lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/gen_flex_lexer.cpp)
+BISON_TARGET(FidlParser 
+    src/parser/fidl_parser.y 
+    ${CMAKE_CURRENT_BINARY_DIR}/gen_bison_parser.cpp
+    COMPILE_FLAGS "--warnings=all --feature=all"
+    )
+
+FLEX_TARGET(FidlLexer 
+    src/parser/fidl_lexer.l  
+    ${CMAKE_CURRENT_BINARY_DIR}/gen_flex_lexer.cpp
+    COMPILE_FLAGS "--header-file=${CMAKE_CURRENT_BINARY_DIR}/gen_flex_defines.h"
+    )
+
 ADD_FLEX_BISON_DEPENDENCY(FidlLexer FidlParser)
 
 set(SOURCES 
@@ -34,8 +44,6 @@ set(SOURCES
         src/ast/variable_decl.cpp
         src/ast/version.cpp
         src/parser.cpp
-        src/parser/fidl_lexer.l
-        src/parser/fidl_parser.y
         src/util/util.cpp
         include/ast/ast_node.h
         include/ast/ast_node_list.h
@@ -61,7 +69,7 @@ set(SOURCES
         include/ast/type.h
         include/ast/variable_decl.h
         include/ast/version.h
-        include/parser.h
+        #include/parser.h
         include/util/util.h
         )
 

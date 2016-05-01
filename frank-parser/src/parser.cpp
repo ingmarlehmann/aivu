@@ -1,23 +1,18 @@
 #include "parser.h"
 
+#include "gen_bison_parser.hpp"
+#include "gen_flex_defines.h"
+
 #include <iostream>
 #include <functional>
 #include <cassert>
 
 #include "ast/root.h"
 
-extern FILE* yyin;
-
 extern std::function<void(const char*)> bison_error_callback;
 extern std::function<void(const char*)> flex_error_callback;
 
 extern fparser::ast::Root* root_node;
-extern int yyparse();
-extern int yydebug;
-extern int yylineno;
-extern int yycolumn;
-extern int yyleng;
-extern char const* yytext;
 
 namespace fparser
 {
@@ -29,12 +24,6 @@ FidlParser::FidlParser()
 FidlParser::~FidlParser() { clear(); }
 void FidlParser::clear()
 {
-  if (yyin != nullptr)
-  {
-    fclose(yyin);
-    yyin = nullptr;
-  }
-
   if (root_node_)
   {
     delete root_node_;
@@ -49,8 +38,8 @@ ParserStatus FidlParser::parse(const std::string& file, bool debug)
 {
   clear();
 
-  yyin = fopen(file.c_str(), "r");
-  if (yyin == nullptr)
+  FILE* file_ptr = fopen(file.c_str(), "r");
+  if (file_ptr == nullptr)
   {
     std::cerr << "ERROR: failed to open file '" << file << "'" << std::endl;
     return ParserStatus::ERROR_FILE_NOT_FOUND;
@@ -59,20 +48,29 @@ ParserStatus FidlParser::parse(const std::string& file, bool debug)
   current_file_ = file;
 
   char line[512];
-  while (fgets(line, sizeof(line), yyin))
+  while (fgets(line, sizeof(line), file_ptr))
   {
     file_content_.push_back(std::string(line));
   }
-  rewind(yyin);
+  rewind(file_ptr);
 
   if (debug)
   {
-    yydebug = 1;
+    yyset_debug(1, lexer_);
   }
 
-  yyparse();
+  yylex_init(&lexer_);
+  yyset_extra(this, lexer_);
+
+  yyset_in(file_ptr, lexer_);
+
+  yyparse(lexer_);
 
   root_node_ = root_node;
+
+  fclose(file_ptr);
+
+  yylex_destroy(lexer_);
 
   return first_error_;
 }
@@ -91,28 +89,29 @@ const std::string& FidlParser::get_line(int lineno)
 
 std::string FidlParser::nchars(char const character, int num)
 {
-    std::string str;
-    str.append(num, character);
+  std::string str;
+  str.append(num, character);
 
-    return str;
+  return str;
 }
 
 void FidlParser::parser_error_callback(const char* error_msg)
 {
-  const std::string& source_line = get_line(yylineno);
+   const std::string& source_line = get_line(yyget_lineno(lexer_));
 
-  std::cout << current_file_ << ":" << yylineno << ":" << yycolumn-yyleng << ": " << error_msg << std::endl;
-  std::cout << ">" << source_line; 
+   std::cout << current_file_ << ":" << yyget_lineno(lexer_) << ":" << yyget_column(lexer_)-yyget_leng(lexer_) << ": " << error_msg << std::endl;
+   std::cout << ">" << source_line;
 
-  first_error_ = ParserStatus::PARSING_ERROR;
+   first_error_ = ParserStatus::PARSING_ERROR;
 }
+
 void FidlParser::lexer_error_callback(const char* error_msg)
 {
-  const std::string& source_line = get_line(yylineno);
+   const std::string& source_line = get_line(yyget_lineno(lexer_));
 
-  std::cout << current_file_ << ":" << yylineno << ":" << yycolumn-yyleng << ": " << error_msg << std::endl;
-  std::cout << ">" << source_line; 
+   std::cout << current_file_ << ":" << yyget_lineno(lexer_) << ":" << yyget_column(lexer_)-yyget_leng(lexer_) << ": " << error_msg << std::endl;
+   std::cout << ">" << source_line;
 
-  first_error_ = ParserStatus::LEXING_ERROR;
+   first_error_ = ParserStatus::LEXING_ERROR;
 }
-}
+}  // namespace fparser

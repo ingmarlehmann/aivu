@@ -23,6 +23,10 @@ class FidlParser
   fparser::ast::Root* root();
 
  public:
+  void* lexer_ = nullptr;
+  std::istream* is_ = nullptr;
+
+ public:
   FidlParser();
   ~FidlParser();
 
@@ -39,6 +43,8 @@ class FidlParser
   std::vector<std::string> file_content_;
   ParserStatus first_error_ = ParserStatus::SUCCESS;
 };
-}
+}  // namespace fparser
+
+int FidlParser_parse(fparser::FidlParser* parser);
 
 #endif /* end of include guard: PARSER_H_CKBOSIVH */

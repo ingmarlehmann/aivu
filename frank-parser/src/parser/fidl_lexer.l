@@ -1,27 +1,40 @@
 %{
+
 #include <string>
 #include <vector>
 #include <cstdlib>
 #include <sstream>
 #include "ast/ast_node.h"
+
 #include "gen_bison_parser.hpp"
+#include "parser.h"
 
-int yycolumn = 1;
+/*int yycolumn = 1;*/
 
-#define SAVE_TOKEN     yylval.t_string = new std::string(yytext, yyleng)
-#define TOKEN(t)       (yylval.t_token = t)
+/*#define YY_EXTRA_TYPE fparser::FidlParser**/
+
+#define SAVE_TOKEN    yylval->t_string = new std::string(yytext, yyleng)
+#define TOKEN(t)      (yylval->t_token = t)
+
 #define YY_USER_ACTION \
-    yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + (int)yyleng - 1; \
+    yylloc->first_line = yylloc->last_line = yylineno; \
+    yylloc->first_column = yycolumn; yylloc->last_column = yycolumn + (int)yyleng - 1; \
     yycolumn += (int)yyleng;
 
 std::function<void(char const*)> flex_error_callback;
-
-extern "C" int yywrap() { }
 %}
 
+%option reentrant bison-bridge
+%option bison-locations
+	/*%option ecs*/
+%option nodefault
+%option noyywrap
+%option stack
+%option warn
 %option yylineno
-        /*%option debug*/
+    /*%option prefix="FidlParser_"*/
+
+    /*%option debug*/
 
     /*                   */
     /* Reserved keywords */
@@ -238,15 +251,15 @@ NAMESPACE_IMPORT        {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*\.\*
 
 {PACKAGE_NAME}          SAVE_TOKEN; return TPACKAGENAME;
 
-{INT_CONST_DEC}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_DEC; }
-{INT_CONST_OCT}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_OCT; }
-{INT_CONST_HEX}         { yylval.t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_HEX; }
-{INT_CONST_BIN}         { yylval.t_longlong = strtol(yytext, NULL, 2); return TINT_CONST_BIN; }
+{INT_CONST_DEC}         { yylval->t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_DEC; }
+{INT_CONST_OCT}         { yylval->t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_OCT; }
+{INT_CONST_HEX}         { yylval->t_longlong = strtol(yytext, NULL, 0); return TINT_CONST_HEX; }
+{INT_CONST_BIN}         { yylval->t_longlong = strtol(yytext, NULL, 2); return TINT_CONST_BIN; }
 
-{FLOAT_CONST}           { yylval.t_float  = strtof(yytext, NULL); return TFLOAT_CONST;      }
-{FLOAT_CONST_HEX}       { yylval.t_float  = strtof(yytext, NULL); return TFLOAT_CONST_HEX;  }
-{DOUBLE_CONST}          { yylval.t_double = strtod(yytext, NULL); return TDOUBLE_CONST;     }
-{DOUBLE_CONST_HEX}      { yylval.t_double = strtod(yytext, NULL); return TDOUBLE_CONST_HEX; }
+{FLOAT_CONST}           { yylval->t_float  = strtof(yytext, NULL); return TFLOAT_CONST;      }
+{FLOAT_CONST_HEX}       { yylval->t_float  = strtof(yytext, NULL); return TFLOAT_CONST_HEX;  }
+{DOUBLE_CONST}          { yylval->t_double = strtod(yytext, NULL); return TDOUBLE_CONST;     }
+{DOUBLE_CONST_HEX}      { yylval->t_double = strtod(yytext, NULL); return TDOUBLE_CONST_HEX; }
 
 {TPLUS}                 return TOKEN(TPLUS);
 {TMINUS}                return TOKEN(TMINUS);
