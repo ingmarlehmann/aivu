@@ -6,6 +6,11 @@
 
 namespace fparser
 {
+namespace ast
+{
+class Package;
+}
+
 enum class ParserStatus
 {
   SUCCESS,
@@ -18,13 +23,11 @@ enum class ParserStatus
 class FidlParser
 {
  public:
-  ParserStatus 
-    parse(const std::string& file, bool debug = false);
-  
+  ParserStatus parse(const std::string& file, bool debug = false);
+
   void clear();
-  
-  fparser::ast::Root* 
-    root();
+
+  fparser::ast::Root* root();
 
  public:
   void* lexer_ = nullptr;
@@ -33,20 +36,19 @@ class FidlParser
   FidlParser();
   ~FidlParser();
 
- public: // will be called from within the parser
+ public:  // will be called from within the parser
   void parse_include(const std::string& filename);
   void pop_include();
-  void push_package(ast::ASTNode* package);
+  void push_package(ast::Package* package);
   void pop_package();
-  
-  ast::ASTNode* 
-      current_package();
 
- private: // will be called from within the parser
+  ast::Package* current_package();
+
+ private:  // will be called from within the parser
   void lexer_error_callback(const char* error_msg);
   void parser_error_callback(const char* error_msg);
-  int  yywrap_callback(void* lexer);
-  
+  int yywrap_callback(void* lexer);
+
  private:
   const std::string& get_line(int lineno);
   std::string nchars(char const character, int num);
@@ -59,7 +61,7 @@ class FidlParser
   std::string current_file_;
   std::vector<std::string> file_content_;
   ParserStatus first_error_ = ParserStatus::SUCCESS;
-  std::vector<ast::ASTNode*> package_stack_;
+  std::vector<ast::Package*> package_stack_;
 };
 }  // namespace fparser
 

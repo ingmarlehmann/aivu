@@ -46,6 +46,9 @@
     ast::Root*                              g_root_node = new ast::Root();
     std::function<int(yyscan_t scanner)>    g_yywrap_callback;
 
+    
+    typedef void* yyscan_t;
+    
     int yywrap(yyscan_t scanner)
     {
         if(g_yywrap_callback)
@@ -63,8 +66,6 @@
 			g_bison_error_callback(msg);
 		}
 	}
-    
-    typedef void* yyscan_t;
 %}
 
 %define api.pure full
@@ -215,23 +216,65 @@
 
 root_level_object_list : root_level_object 
                         { 
-                            g_root_node->add_child($1);
+                            fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
+                            assert(driver != nullptr);
+                            
+                            // If the top level node is not a package,
+                            // we want to add it to the current package.
+                            if(dynamic_cast<ast::Package*>($1) == nullptr)
+                            {
+                                ast::Package* current_package = driver->current_package();
+                                assert(current_package != nullptr);
+
+                                current_package->add_child($1);
+                            }
+                            // The top level node is a package
+                            else 
+                            {
+                                // Sanity check. Package shall already be a child of root_node
+                                // and set as the current package, before this rule is executed.
+                                assert(driver->current_package() == static_cast<ast::Package*>($1)); 
+                            }
                         }
                        | root_level_object_list root_level_object 
                         {  
-                            g_root_node->add_child($2);
+                            fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
+                            assert(driver != nullptr);
+                            
+                            // If the top level node is not a package,
+                            // we want to add it to the current package.
+                            if(dynamic_cast<ast::Package*>($2) == nullptr)
+                            {
+                                ast::Package* current_package = driver->current_package();
+                                assert(current_package != nullptr);
+
+                                current_package->add_child($2);
+                            }
+                            // The top level node is a package
+                            else 
+                            {
+                                // Sanity check. Package shall already be a child of root_node
+                                // and set as the current package, before this rule is executed.
+                                assert(driver->current_package() == static_cast<ast::Package*>($2)); 
+                            }
                         }
                        ;
 
-root_level_object : interface
-                  | import_decl
+root_level_object : interface { $$ = $1; }
+                  | import_decl { $$ = $1; }
                   | package 
                     { 
                         $$ = $1; 
-                        ast::Package* package = dynamic_cast<ast::Package*>($1);
-                        assert(package);
+                        
                         fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
-                        driver->push_package(package); 
+                        assert(driver != nullptr);
+                        
+                        ast::Package* package = dynamic_cast<ast::Package*>($1);
+                        assert(package != nullptr);
+    
+                        driver->push_package(package);
+                        
+                        g_root_node->add_child($1);
                     }
                   ;
 
@@ -246,9 +289,13 @@ import_decl : TIMPORT TMODEL string_constant
                     $$ = new ast::ImportDecl(*$4, $2); 
                     $$->add_child($4); 
                     $$->add_child($2); 
+                    
+                    fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
+                    assert(driver != nullptr);
+                    
                     ast::StringConstant* include_file = dynamic_cast<ast::StringConstant*>($4);
-                    if(include_file){
-                        fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
+                    if(include_file)
+                    {
                         driver->parse_include(include_file->value());
                     }
                 }

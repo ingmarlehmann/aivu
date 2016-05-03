@@ -36,9 +36,9 @@ void FidlParser::clear()
 
   first_error_ = ParserStatus::SUCCESS;
 }
-void FidlParser::push_package(ast::ASTNode* package) { package_stack_.push_back(package); }
+void FidlParser::push_package(ast::Package* package) { package_stack_.push_back(package); }
 void FidlParser::pop_package() { package_stack_.pop_back(); }
-ast::ASTNode* FidlParser::current_package() { return package_stack_.empty() ? nullptr : *(package_stack_.end()); }
+ast::Package* FidlParser::current_package() { return package_stack_.empty() ? nullptr : package_stack_.back(); }
 ast::Root* FidlParser::root() { return root_node_; }
 void FidlParser::parse_include(const std::string& filename)
 {
