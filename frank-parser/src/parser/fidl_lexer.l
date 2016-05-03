@@ -21,14 +21,13 @@
     yylloc->first_column = yycolumn; yylloc->last_column = yycolumn + (int)yyleng - 1; \
     yycolumn += (int)yyleng;
 
-std::function<void(char const*)> flex_error_callback;
+std::function<void(char const*)> g_flex_error_callback;
 %}
 
 %option reentrant bison-bridge
 %option bison-locations
 	/*%option ecs*/
 %option nodefault
-%option noyywrap
 %option stack
 %option warn
 %option yylineno
@@ -298,11 +297,11 @@ NAMESPACE_IMPORT        {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*\.\*
 [\r?\n]                 { yycolumn = 0; }
 [ \t]
 .                       { 
-                            if(flex_error_callback) 
+                            if(g_flex_error_callback) 
                             { 
                                 std::stringstream ss;
                                 ss << "[invalid token (char): '" << std::hex << yytext << "']";
-                                flex_error_callback(ss.str().c_str()); 
+                                g_flex_error_callback(ss.str().c_str()); 
                             } 
                             yyterminate(); 
                         } 

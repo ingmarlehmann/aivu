@@ -18,26 +18,38 @@ enum class ParserStatus
 class FidlParser
 {
  public:
-  ParserStatus parse(const std::string& file, bool debug = false);
+  ParserStatus 
+    parse(const std::string& file, bool debug = false);
+  
   void clear();
-  fparser::ast::Root* root();
+  
+  fparser::ast::Root* 
+    root();
 
  public:
   void* lexer_ = nullptr;
-  std::istream* is_ = nullptr;
 
  public:
   FidlParser();
   ~FidlParser();
 
- private:
+ public: // will be called from within the parser
+  void parse_include(const std::string& filename);
+  void pop_include();
+
+ private: // will be called from within the parser
   void lexer_error_callback(const char* error_msg);
   void parser_error_callback(const char* error_msg);
+  int  yywrap_callback(void* lexer);
+  
+ private:
   const std::string& get_line(int lineno);
   std::string nchars(char const character, int num);
 
  private:
   fparser::ast::Root* root_node_ = nullptr;
+
+  int include_depth_ = 0;
 
   std::string current_file_;
   std::vector<std::string> file_content_;

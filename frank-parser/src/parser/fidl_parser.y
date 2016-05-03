@@ -7,6 +7,7 @@
     #include <string>
     #include <memory>
     #include <functional>
+    #include <algorithm>
 
     #include "ast/ast_node.h"
     #include "ast/ast_node_list.h"
@@ -39,87 +40,29 @@
 
     using namespace fparser;
    
-	/*int yylex(YYSTYPE* lvalp, YYLTYPE* llocp);*/
-	
-	void yyerror(YYLTYPE* locp, const char* err)
-   	{
-      std::cout << locp->first_line << ":" << err << std::endl;
-   	}
-
- 
-    // Global methods
-    /*extern int yylex();*/
-   /*extern int yylex(YYSTYPE* yylval_param, YYLTYPE* yylloc_param, yyscan_t yyscanner);*/
-
-    
     // Global variables
-    std::function<void(const char*)>    bison_error_callback;
-    ast::Root*                          root_node = new ast::Root();
-    /*extern int                          yylineno;*/
+    std::function<void(const char*)>        g_bison_error_callback;
+    ast::Root*                              g_root_node = new ast::Root();
+    std::function<int(yyscan_t scanner)>    g_yywrap_callback;
 
-    class ParserDriver
+    int yywrap(yyscan_t scanner)
     {
-      public:
-        ParserDriver() {}
-        ~ParserDriver() {}
-
-      public:
-        void parse_include(const std::string& file)
+        /*std::cout << "yywrap() was called, returning ";*/
+        if(g_yywrap_callback)
         {
-            // Save current state:
-            // FILE* incfile = fopen(file.c_str(), "r");
-            //
-            // YY_BUFFER_STATE buf_state = yy_create_buffer(incfile, YY_BUF_SIZE);
-            // yypush_buffer_state(buf_state);
-            //
-            // parse()
-            //
-            // yypop_buffer_state();
-            //
+            int result = g_yywrap_callback(scanner);
+            /*std::cout << result << "\n";*/
+            return result;
         }
+        /*std::cout << "0\n";*/
+        return 0;
+    }
 
-        void enter_scope()
-        {
-            /*printf("current scope %d\n", current_scope_);*/
-            ++current_scope_;
-            /*printf("entering scope %d\n", current_scope_);*/
-        }
-
-        void exit_scope()
-        {
-            /*printf("exiting scope %d\n", current_scope_);*/
-            --current_scope_;
-            /*printf("current scope %d\n", current_scope_);*/
-        }
-
-      private:
-        struct ParserFileState
-        {
-            long int file_pos_ = 0;
-            FILE* file_ = nullptr;
-        };
-      
-        std::vector<ParserFileState> include_file_stack_;
-        int current_scope_ = 0;
-    };
-
-    /*void yyerror(char const* msg)*/
-    /*{*/
-        /*if(bison_error_callback)*/
-        /*{*/
-            /*bison_error_callback(msg);*/
-        /*}*/
-    /*}*/
-
-	/*struct YYLTYPE;*/
-
-    /*void* scanner = nullptr;*/
-
-	void yyerror(YYLTYPE *locp, void* scanner, char const *msg)
+	void yyerror(YYLTYPE *locp, void* parser_driver, void* scanner, char const *msg)
 	{
-		if(bison_error_callback)
+		if(g_bison_error_callback)
 		{
-			bison_error_callback(msg);
+			g_bison_error_callback(msg);
 		}
 	}
 
@@ -127,26 +70,18 @@
     {
         parent->children().push_back(child);
     }
-
-    ParserDriver parser_driver;
     
     typedef void* yyscan_t;
-
-    /*#define scanner parser->lexer_*/
 %}
 
 %define api.pure full
-    /*%define api.prefix {FidlParser_}*/
 %locations
 %define parse.trace
 %define parse.lac full
 %define parse.error verbose
 
-%parse-param { void* scanner }
+%parse-param { void* parser_driver } { void* scanner }
 %lex-param   { void* scanner }
-
-    /*%token-table*/
-    /*%glr-parser*/
 
 %union{
     fparser::ast::ASTNode* t_ast_node;
@@ -245,7 +180,7 @@
 %token <t_token>    TEQUALS         "_=_(operator)"
 
 %type <t_ast_node> constant
-%type <t_ast_node> document
+/*%type <t_ast_node> document*/
 %type <t_ast_node> double_constant
 %type <t_ast_node> enum_decl
 %type <t_ast_node> enumerator
@@ -255,7 +190,7 @@
 %type <t_ast_node> identifier
 %type <t_ast_node> implicit_array_decl
 %type <t_ast_node> import_decl
-%type <t_ast_node> import_decl_list
+/*%type <t_ast_node> import_decl_list*/
 %type <t_ast_node> int_constant
 %type <t_ast_node> interface
 %type <t_ast_node> interface_member
@@ -268,6 +203,8 @@
 %type <t_ast_node> method_out_arguments
 %type <t_ast_node> namespace_import
 %type <t_ast_node> package
+%type <t_ast_node> root_level_object
+%type <t_ast_node> root_level_object_list
 %type <t_ast_node> string_constant
 %type <t_ast_node> struct_decl
 %type <t_ast_node> struct_member
@@ -279,24 +216,41 @@
 %type <t_token>    rbrace
 /*%type <t_ast_node> variable_decl_list   "Variable declarator list"*/
 
-%start document
+%start root_level_object_list
 
 %%
 
-document : package import_decl_list interface 
-            { add_child(root_node, $1); add_child($1, $2); add_child($1, $3); }
-         | package interface 
-            { add_child(root_node, $1); add_child($1, $2); }
-         ;
+/*document : package import_decl_list interface */
+            /*{ add_child(g_root_node, $1); add_child($1, $2); add_child($1, $3); }*/
+         /*| package interface */
+            /*{ add_child(g_root_node, $1); add_child($1, $2); }*/
+         /*;*/
 
-import_decl_list : import_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }
-                 | import_decl_list import_decl { $$ = $1; add_child($$, $2); }
-                 ;
+root_level_object_list : root_level_object { $$ = g_root_node; add_child(g_root_node, $1); }
+                       | root_level_object_list root_level_object {  $$ = g_root_node; add_child(g_root_node, $2); }
+                       ;
+
+root_level_object : interface
+                  | import_decl
+                  | package
+                  ;
+
+/*import_decl_list : import_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }*/
+                 /*| import_decl_list import_decl { $$ = $1; add_child($$, $2); }*/
+                 /*;*/
 
 import_decl : TIMPORT TMODEL string_constant 
                 { $$ = new ast::ImportDecl(*$3, nullptr); add_child($$, $3); }
             | TIMPORT namespace_import TFROM string_constant 
-                { $$ = new ast::ImportDecl(*$4, $2); add_child($$, $4); add_child($$, $2); }
+                { 
+                    $$ = new ast::ImportDecl(*$4, $2); 
+                    add_child($$, $4); add_child($$, $2); 
+                    ast::StringConstant* include_file = dynamic_cast<ast::StringConstant*>($4);
+                    if(include_file){
+                        fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
+                        driver->parse_include(include_file->value());
+                    }
+                }
             ;
 
 namespace_import : TNAMESPACE_IMPORT { $$ = new ast::StringConstant(*$1); delete $1; }
@@ -416,7 +370,13 @@ constant : int_constant { $$ = $1; }
          | double_constant { $$ = $1; }
          ;
 
-string_constant : TSTRING_CONST { $$ = new ast::StringConstant(*$1); delete $1; }
+string_constant : TSTRING_CONST 
+                {
+                    // Remove enclosing quotes
+                    ($1)->erase(std::remove(($1)->begin(), ($1)->end(), '"'), ($1)->end());
+                    $$ = new ast::StringConstant(*$1); 
+                    delete $1; 
+                }
                 ;
 
 int_constant : TINT_CONST_DEC { $$ = new ast::IntConstant($1); }
@@ -451,24 +411,6 @@ type : TINTEGER    { $$ = new ast::Type(0,  std::string("Integer")); }
      | TBYTEBUFFER { $$ = new ast::Type(0,  std::string("ByteBuffer")); }
     ;
 
-lbrace : TLBRACE { parser_driver.enter_scope(); }
-rbrace : TRBRACE { parser_driver.exit_scope(); }
-
+lbrace : TLBRACE { }
+rbrace : TRBRACE { }
 %%
-
-/*#include "gen_flex_defines.h"*/
-
-int
-yyerror(YYLTYPE *locp, char *msg) {
-  if (locp) {
-    fprintf(stderr, "parse error: %s (:%d.%d -> :%d.%d)\n",
-                    msg,
-                    locp->first_line, locp->first_column,
-                    locp->last_line,  locp->last_column
-    );
-    /* todo: add some fancy ^^^^^ error handling here */
-  } else {
-    fprintf(stderr, "parse error: %s\n", msg);
-  }
-  return (0);
-}

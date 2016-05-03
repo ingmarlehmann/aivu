@@ -1,10 +1,15 @@
 package org.franca_parser.test
 
-import A.B.C from "A.fidl"
-import C.D.* from "C.fidl"
+import C.D.* from "test_methods.fidl"
 
 interface TestImports
 {
+    version
+    {
+        major 0
+        minor 1
+    }
+
     method DontMindMe
     {
         out
