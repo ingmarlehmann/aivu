@@ -19,8 +19,14 @@ class ASTNode
   virtual void accept(ASTNodeVisitor& visitor) = 0;
 
  public:
-  virtual std::vector<NodePtr_t>& children();
-  virtual bool has_children() const;
+  virtual void 
+      add_child(NodePtr_t child);
+
+  virtual std::vector<NodePtr_t>& 
+      children();
+
+  virtual bool 
+      has_children() const;
 
  public:
   virtual ~ASTNode();

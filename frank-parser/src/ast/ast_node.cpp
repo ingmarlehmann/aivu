@@ -14,8 +14,8 @@ ASTNode::~ASTNode()
     delete children_[i];
   }
 }
-
+void ASTNode::add_child(ASTNode::NodePtr_t child) { children_.push_back(child); }
 std::vector<ASTNode::NodePtr_t>& ASTNode::children() { return children_; }
 bool ASTNode::has_children() const { return children_.empty(); }
-} // namespace ast
-} // namespace fparser
+}  // namespace ast
+}  // namespace fparser

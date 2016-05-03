@@ -8,6 +8,7 @@
     #include <memory>
     #include <functional>
     #include <algorithm>
+    #include <cassert>
 
     #include "ast/ast_node.h"
     #include "ast/ast_node_list.h"
@@ -47,14 +48,11 @@
 
     int yywrap(yyscan_t scanner)
     {
-        /*std::cout << "yywrap() was called, returning ";*/
         if(g_yywrap_callback)
         {
             int result = g_yywrap_callback(scanner);
-            /*std::cout << result << "\n";*/
             return result;
         }
-        /*std::cout << "0\n";*/
         return 0;
     }
 
@@ -65,11 +63,6 @@
 			g_bison_error_callback(msg);
 		}
 	}
-
-    void add_child(ast::ASTNode* parent, ast::ASTNode* child)
-    {
-        parent->children().push_back(child);
-    }
     
     typedef void* yyscan_t;
 %}
@@ -220,31 +213,39 @@
 
 %%
 
-/*document : package import_decl_list interface */
-            /*{ add_child(g_root_node, $1); add_child($1, $2); add_child($1, $3); }*/
-         /*| package interface */
-            /*{ add_child(g_root_node, $1); add_child($1, $2); }*/
-         /*;*/
-
-root_level_object_list : root_level_object { $$ = g_root_node; add_child(g_root_node, $1); }
-                       | root_level_object_list root_level_object {  $$ = g_root_node; add_child(g_root_node, $2); }
+root_level_object_list : root_level_object 
+                        { 
+                            g_root_node->add_child($1);
+                        }
+                       | root_level_object_list root_level_object 
+                        {  
+                            g_root_node->add_child($2);
+                        }
                        ;
 
 root_level_object : interface
                   | import_decl
-                  | package
+                  | package 
+                    { 
+                        $$ = $1; 
+                        ast::Package* package = dynamic_cast<ast::Package*>($1);
+                        assert(package);
+                        fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
+                        driver->push_package(package); 
+                    }
                   ;
 
-/*import_decl_list : import_decl { $$ = new ast::ASTNodeList(); add_child($$, $1); }*/
-                 /*| import_decl_list import_decl { $$ = $1; add_child($$, $2); }*/
+/*import_decl_list : import_decl { $$ = new ast::ASTNodeList(); $$->add_child($1); }*/
+                 /*| import_decl_list import_decl { $$ = $1; $$->add_child($2); }*/
                  /*;*/
 
 import_decl : TIMPORT TMODEL string_constant 
-                { $$ = new ast::ImportDecl(*$3, nullptr); add_child($$, $3); }
+                { $$ = new ast::ImportDecl(*$3, nullptr); $$->add_child($3); }
             | TIMPORT namespace_import TFROM string_constant 
                 { 
                     $$ = new ast::ImportDecl(*$4, $2); 
-                    add_child($$, $4); add_child($$, $2); 
+                    $$->add_child($4); 
+                    $$->add_child($2); 
                     ast::StringConstant* include_file = dynamic_cast<ast::StringConstant*>($4);
                     if(include_file){
                         fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
@@ -257,117 +258,132 @@ namespace_import : TNAMESPACE_IMPORT { $$ = new ast::StringConstant(*$1); delete
                  ;
 
 interface : TINTERFACE identifier lbrace version interface_member_list rbrace 
-                { $$ = new ast::Interface(); add_child($$, $2); add_child($$, $4); add_child($$, $5); }
+                { $$ = new ast::Interface(); $$->add_child($2); $$->add_child($4); $$->add_child($5); }
           | franca_comment TINTERFACE identifier lbrace version interface_member_list rbrace 
-                { $$ = new ast::Interface(); add_child($$, $1); add_child($$, $3); add_child($$, $5); add_child($$, $6); }
+                { $$ = new ast::Interface(); $$->add_child($1); $$->add_child($3); $$->add_child($5); $$->add_child($6); }
           ;
 
-interface_member_list : interface_member { $$ = new ast::ASTNodeList(); add_child($$, $1); }
-                      | interface_member_list interface_member { $$ = $1; add_child($$, $2); }
+interface_member_list : interface_member { $$ = new ast::ASTNodeList(); $$->add_child($1); }
+                      | interface_member_list interface_member { $$ = $1; $$->add_child($2); }
                       ;
 
-interface_member : enum_decl { $$ = $1; }
-                 | method_decl { $$ = $1; }
-                 | struct_decl { $$ = $1; }
+interface_member : enum_decl
+                 | method_decl
+                 | struct_decl
                  ;
 
 package : TPACKAGE TPACKAGENAME { $$ = new ast::Package(*$2); delete $2; }
              ;
 
 version : TVERSION lbrace TMAJOR int_constant TMINOR int_constant rbrace
-            { $$ = new ast::Version(*dynamic_cast<ast::IntConstant*>($4), *dynamic_cast<ast::IntConstant*>($6)); 
-                add_child($$, $4); add_child($$, $6); }
+            { 
+                $$ = new ast::Version(*dynamic_cast<ast::IntConstant*>($4), *dynamic_cast<ast::IntConstant*>($6)); 
+                $$->add_child($4); $$->add_child($6); 
+            }
         ;
 
 method_decl : TBROADCAST identifier lbrace method_body rbrace 
-                { $$ = new ast::BroadcastMethodDecl(*$2, *$4, nullptr, false); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::BroadcastMethodDecl(*$2, *$4, nullptr, false); $$->add_child($2); $$->add_child($4); }
             | franca_comment TBROADCAST identifier lbrace method_body rbrace 
-                { $$ = new ast::BroadcastMethodDecl(*$3, *$5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
+                { 
+                    $$ = new ast::BroadcastMethodDecl(*$3, *$5, $1, false); 
+                    $$->add_child($3); $$->add_child($5); $$->add_child($1); 
+                }
             ;
 
 method_decl : TBROADCAST identifier TSELECTIVE lbrace method_body rbrace 
-                { $$ = new ast::BroadcastMethodDecl(*$2, *$5, nullptr, true); add_child($$, $2); add_child($$, $5); }
+                { $$ = new ast::BroadcastMethodDecl(*$2, *$5, nullptr, true); $$->add_child($2); $$->add_child($5); }
             | franca_comment TBROADCAST identifier TSELECTIVE lbrace method_body rbrace 
-                { $$ = new ast::BroadcastMethodDecl(*$3, *$6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
+                { 
+                    $$ = new ast::BroadcastMethodDecl(*$3, *$6, $1, true); 
+                    $$->add_child($3); $$->add_child($6); $$->add_child($1); 
+                }
             ;
 
 method_decl : TMETHOD identifier TFIREANDFORGET lbrace method_in_arguments rbrace 
-                { $$ = new ast::MethodDecl($2, $5, nullptr, true); add_child($$, $2); add_child($$, $5); }
+                { $$ = new ast::MethodDecl($2, $5, nullptr, true); $$->add_child($2); $$->add_child($5); }
             | franca_comment TMETHOD identifier TFIREANDFORGET lbrace method_in_arguments rbrace
-                { $$ = new ast::MethodDecl($3, $6, $1, true); add_child($$, $3); add_child($$, $6); add_child($$, $1); }
+                { $$ = new ast::MethodDecl($3, $6, $1, true); $$->add_child($3); $$->add_child($6); $$->add_child($1); }
             ;
 
 method_decl : TMETHOD identifier lbrace method_body rbrace 
-                { $$ = new ast::MethodDecl($2, $4, nullptr, false); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::MethodDecl($2, $4, nullptr, false); $$->add_child($2); $$->add_child($4); }
             | franca_comment TMETHOD identifier lbrace method_body rbrace 
-                { $$ = new ast::MethodDecl($3, $5, $1, false); add_child($$, $3); add_child($$, $5); add_child($$, $1); }
+                { $$ = new ast::MethodDecl($3, $5, $1, false); $$->add_child($3); $$->add_child($5); $$->add_child($1); }
             ;
 
-method_body : method_out_arguments { $$ = new ast::MethodBody(nullptr, $1); add_child($$, $1); }
+method_body : method_out_arguments 
+                { $$ = new ast::MethodBody(nullptr, $1); $$->add_child($1); }
             | method_out_arguments method_in_arguments 
-                { $$ = new ast::MethodBody($2, $1); add_child($$, $1); add_child($$, $2); }
+                { $$ = new ast::MethodBody($2, $1); $$->add_child($1); $$->add_child($2); }
             | method_in_arguments method_out_arguments 
-                { $$ = new ast::MethodBody($1, $2); add_child($$, $2); add_child($$, $1); }
+                { $$ = new ast::MethodBody($1, $2); $$->add_child($2); $$->add_child($1); }
             ;
 
 method_in_arguments : TIN lbrace method_argument_list rbrace { $$ = $3; }
 method_out_arguments : TOUT lbrace method_argument_list rbrace { $$ = $3; }
 
-method_argument_list : method_argument { $$ = new ast::ASTNodeList(); add_child($$, $1); }
-                     | method_argument_list method_argument { $$ = $1; add_child($$, $2); }
+method_argument_list : method_argument { $$ = new ast::ASTNodeList(); $$->add_child($1); }
+                     | method_argument_list method_argument { $$ = $1; $$->add_child($2); }
                      ;
 
-method_argument : type identifier { $$ = new ast::MethodArgument(); add_child($$, $1); add_child($$, $2); }
+method_argument : type identifier { $$ = new ast::MethodArgument(); $$->add_child($1); $$->add_child($2); }
                 | franca_comment type identifier 
-                    { $$ = new ast::MethodArgument(); 
-                        add_child($$, $1); add_child($$, $2); add_child($$, $3); }
+                    { 
+                        $$ = new ast::MethodArgument(); 
+                        $$->add_child($1); $$->add_child($2); $$->add_child($3); 
+                    }
                 ;
 
 struct_decl : TSTRUCT identifier lbrace struct_member_list rbrace 
-                { $$ = new ast::StructDecl(*$2, *$4, nullptr); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::StructDecl(*$2, *$4, nullptr); $$->add_child($2); $$->add_child($4); }
             | franca_comment TSTRUCT identifier lbrace struct_member_list rbrace 
-                { $$ = new ast::StructDecl(*$3, *$5, $1); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
+                { $$ = new ast::StructDecl(*$3, *$5, $1); $$->add_child($1); $$->add_child($3); $$->add_child($5); }
             ;
 
-struct_member_list : struct_member { $$ = new ast::ASTNodeList(); add_child($$, $1); }
-                   | struct_member_list struct_member { $$ = $1; add_child($$, $2); }
+struct_member_list : struct_member { $$ = new ast::ASTNodeList(); $$->add_child($1); }
+                   | struct_member_list struct_member { $$ = $1; $$->add_child($2); }
                    ;
 
-struct_member : implicit_array_decl { $$ = $1; }
-              | variable_decl {}
+struct_member : implicit_array_decl
+              | variable_decl
               ;
 
 enum_decl : TENUMERATION identifier lbrace enumerator_list rbrace 
-                { $$ = new ast::EnumDecl(*$2, *$4, nullptr); add_child($$, $2); add_child($$, $4); }
+                { $$ = new ast::EnumDecl(*$2, *$4, nullptr); $$->add_child($2); $$->add_child($4); }
           | franca_comment TENUMERATION identifier lbrace enumerator_list rbrace 
-                { $$ = new ast::EnumDecl(*$3, *$5, $1); add_child($$, $1); add_child($$, $3); add_child($$, $5); }
+                { $$ = new ast::EnumDecl(*$3, *$5, $1); $$->add_child($1); $$->add_child($3); $$->add_child($5); }
           ;
 
-enumerator_list : enumerator { $$ = new ast::ASTNodeList(); add_child($$,$1); }
-                | enumerator_list enumerator { add_child($1,$2); $$ = $1; }
+enumerator_list : enumerator { $$ = new ast::ASTNodeList(); $$->add_child($1); }
+                | enumerator_list enumerator { $$ = $1; $$->add_child($2); }
                 ;
 
-enumerator : identifier { $$ = new ast::Enumerator(); add_child($$, $1); }
-           | identifier TEQUALS int_constant { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $3); }
-           | franca_comment identifier { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $2); }
-           | franca_comment identifier TEQUALS int_constant { $$ = new ast::Enumerator(); add_child($$, $1); add_child($$, $2); add_child($$, $4); }
+enumerator : identifier 
+                { $$ = new ast::Enumerator(); $$->add_child($1); }
+           | identifier TEQUALS int_constant 
+                { $$ = new ast::Enumerator(); $$->add_child($1); $$->add_child($3); }
+           | franca_comment identifier 
+                { $$ = new ast::Enumerator(); $$->add_child($1); $$->add_child($2); }
+           | franca_comment identifier TEQUALS int_constant 
+                { $$ = new ast::Enumerator(); $$->add_child($1); $$->add_child($2); $$->add_child($4); }
            ;
 
 franca_comment : TFRANCACOMMENT { $$ = new ast::FrancaComment(*$1); delete $1; }
 
 implicit_array_decl : type TLBRACKET TRBRACKET identifier 
-                        { $$ = new ast::ImplicitArrayDecl(*$1, *$4); add_child($$, $1); add_child($$, $4); }
+                        { $$ = new ast::ImplicitArrayDecl(*$1, *$4); $$->add_child($1); $$->add_child($4); }
                     ;
 
-variable_decl : type identifier { $$ = new ast::VariableDecl(); add_child($$, $1); add_child($$, $2); }
-              | type identifier TEQUALS constant { $$ = new ast::VariableDecl(); add_child($$, $2); add_child($$, $4); }
+variable_decl : type identifier { $$ = new ast::VariableDecl(); $$->add_child($1); $$->add_child($2); }
+              | type identifier TEQUALS constant { $$ = new ast::VariableDecl(); $$->add_child($1); $$->add_child($2); $$->add_child($4); }
               ;
 
 identifier : TIDENTIFIER { $$ = new ast::Identifier(*$1); delete $1; }
 
-constant : int_constant { $$ = $1; }
-         | float_constant { $$ = $1; }
-         | double_constant { $$ = $1; }
+constant : int_constant
+         | float_constant
+         | double_constant
          ;
 
 string_constant : TSTRING_CONST 

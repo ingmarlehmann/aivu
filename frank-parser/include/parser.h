@@ -36,6 +36,11 @@ class FidlParser
  public: // will be called from within the parser
   void parse_include(const std::string& filename);
   void pop_include();
+  void push_package(ast::ASTNode* package);
+  void pop_package();
+  
+  ast::ASTNode* 
+      current_package();
 
  private: // will be called from within the parser
   void lexer_error_callback(const char* error_msg);
@@ -54,6 +59,7 @@ class FidlParser
   std::string current_file_;
   std::vector<std::string> file_content_;
   ParserStatus first_error_ = ParserStatus::SUCCESS;
+  std::vector<ast::ASTNode*> package_stack_;
 };
 }  // namespace fparser
 
