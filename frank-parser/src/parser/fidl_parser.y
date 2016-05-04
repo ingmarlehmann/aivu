@@ -43,10 +43,8 @@
    
     // Global variables
     std::function<void(const char*)>        g_bison_error_callback;
-    ast::Root*                              g_root_node = new ast::Root();
     std::function<int(yyscan_t scanner)>    g_yywrap_callback;
 
-    
     typedef void* yyscan_t;
     
     int yywrap(yyscan_t scanner)
@@ -86,61 +84,61 @@
     double                 t_double;
 }
 
-%token <t_string>   TIDENTIFIER         "_identifier_(definition)"
-%token <t_string>   TPACKAGENAME        "_package name_(definition)"
-%token <t_string>   TFRANCACOMMENT      "_franca comment_(definition)"
-%token <t_string>   TCCOMMENT           "_c-style comment_(definition)"
-%token <t_string>   TNAMESPACE_IMPORT   "_namespace import_(definition)"
-%token <t_string>   TSTRING_CONST       "_string constant_(definition)"
+%token <t_string>   TIDENTIFIER       "_identifier_(definition)"
+%token <t_string>   TPACKAGENAME      "_package_name_(definition)"
+%token <t_string>   TFRANCACOMMENT    "_franca_comment_(definition)"
+%token <t_string>   TCCOMMENT         "_c-style_comment_(definition)"
+%token <t_string>   TNAMESPACE_IMPORT "_namespace_import_(definition)"
+%token <t_string>   TSTRING_CONST     "_string_constant_(definition)"
 
-%token <t_token>    TIMPORT         "_import_(keyword)"
-%token <t_token>    TMODEL          "_model_(keyword)"
-%token <t_token>    TFROM           "_from_(keyword)"
-%token <t_token>    TINTERFACE      "_interface_(keyword)"
-%token <t_token>    TPACKAGE        "_package_(keyword)"
-%token <t_token>    TVERSION        "_version_(keyword)"
-%token <t_token>    TMAJOR          "_major_(keyword)"
-%token <t_token>    TMINOR          "_minor_(keyword)"
-%token <t_token>    TMETHOD         "_method_(keyword)"
-%token <t_token>    TIN             "_in_(keyword)"
-%token <t_token>    TOUT            "_out_(keyword)"
-%token <t_token>    TBROADCAST      "_broadcast_(keyword)"
-%token <t_token>    TSELECTIVE      "_selective_(keyword)"
-%token <t_token>    TFIREANDFORGET  "_fireAndForget_(keyword)"
+%token <t_token>    TIMPORT           "_import_(keyword)"
+%token <t_token>    TMODEL            "_model_(keyword)"
+%token <t_token>    TFROM             "_from_(keyword)"
+%token <t_token>    TINTERFACE        "_interface_(keyword)"
+%token <t_token>    TPACKAGE          "_package_(keyword)"
+%token <t_token>    TVERSION          "_version_(keyword)"
+%token <t_token>    TMAJOR            "_major_(keyword)"
+%token <t_token>    TMINOR            "_minor_(keyword)"
+%token <t_token>    TMETHOD           "_method_(keyword)"
+%token <t_token>    TIN               "_in_(keyword)"
+%token <t_token>    TOUT              "_out_(keyword)"
+%token <t_token>    TBROADCAST        "_broadcast_(keyword)"
+%token <t_token>    TSELECTIVE        "_selective_(keyword)"
+%token <t_token>    TFIREANDFORGET    "_fireAndForget_(keyword)"
 
-%token <t_token>    TSTRUCT         "_struct_(keyword)"
-%token <t_token>    TENUMERATION    "_enumeration_(keyword)"
-%token <t_token>    TINTEGER        "_Integer_(keyword)"
-%token <t_token>    TUINT64         "_UInt64_(keyword)"
-%token <t_token>    TINT64          "_Int64_(keyword)"
-%token <t_token>    TTRUE           "_true_(keyword)"
-%token <t_token>    TFALSE          "_false_(keyword)"
+%token <t_token>    TSTRUCT           "_struct_(keyword)"
+%token <t_token>    TENUMERATION      "_enumeration_(keyword)"
+%token <t_token>    TINTEGER          "_Integer_(keyword)"
+%token <t_token>    TUINT64           "_UInt64_(keyword)"
+%token <t_token>    TINT64            "_Int64_(keyword)"
+%token <t_token>    TTRUE             "_true_(keyword)"
+%token <t_token>    TFALSE            "_false_(keyword)"
 
-%token <t_token>    TUINT32         "_UInt32_(keyword)"
-%token <t_token>    TINT32          "_Int32_(keyword)"
-%token <t_token>    TUINT16         "_UInt16_(keyword)"
-%token <t_token>    TINT16          "_Int16_(keyword)"
-%token <t_token>    TUINT8          "_UInt8_(keyword)"
-%token <t_token>    TINT8           "_Int8_(keyword)"
+%token <t_token>    TUINT32           "_UInt32_(keyword)"
+%token <t_token>    TINT32            "_Int32_(keyword)"
+%token <t_token>    TUINT16           "_UInt16_(keyword)"
+%token <t_token>    TINT16            "_Int16_(keyword)"
+%token <t_token>    TUINT8            "_UInt8_(keyword)"
+%token <t_token>    TINT8             "_Int8_(keyword)"
 
-%token <t_token>    TBOOLEAN        "_Boolean_(keyword)"
-%token <t_token>    TFLOAT          "_Float_(keyword)"
-%token <t_token>    TDOUBLE         "_Double_(keyword)"
-%token <t_token>    TSTRING         "_String_(keyword)"
-%token <t_token>    TBYTEBUFFER     "_ByteBuffer_(keyword)"
+%token <t_token>    TBOOLEAN          "_Boolean_(keyword)"
+%token <t_token>    TFLOAT            "_Float_(keyword)"
+%token <t_token>    TDOUBLE           "_Double_(keyword)"
+%token <t_token>    TSTRING           "_String_(keyword)"
+%token <t_token>    TBYTEBUFFER       "_ByteBuffer_(keyword)"
 
-%token <t_longlong> TINT_CONST_DEC  "_integer_constant_decimal_"
-%token <t_longlong> TINT_CONST_OCT  "_integer_constant_octal_"
-%token <t_longlong> TINT_CONST_HEX  "_integer_constant_hexadecimal_"
-%token <t_token>    TINT_CONST_BIN  "_integer_constant_binary_"
+%token <t_longlong> TINT_CONST_DEC    "_integer_constant_decimal_"
+%token <t_longlong> TINT_CONST_OCT    "_integer_constant_octal_"
+%token <t_longlong> TINT_CONST_HEX    "_integer_constant_hexadecimal_"
+%token <t_token>    TINT_CONST_BIN    "_integer_constant_binary_"
 
-%token <t_float>    TFLOAT_CONST        "_float_constant_"
-%token <t_float>    TFLOAT_CONST_HEX    "_float_constant_hex_"
-%token <t_double>   TDOUBLE_CONST       "_double_constant_"
-%token <t_double>   TDOUBLE_CONST_HEX   "_double_constant_hex_"
+%token <t_float>    TFLOAT_CONST      "_float_constant_"
+%token <t_float>    TFLOAT_CONST_HEX  "_float_constant_hex_"
+%token <t_double>   TDOUBLE_CONST     "_double_constant_"
+%token <t_double>   TDOUBLE_CONST_HEX "_double_constant_hex_"
 
-%token <t_token>    TPLUS           "_ + (operator)_"
-%token <t_token>    TMINUS          "_ - (operator)_"
+%token <t_token>    TPLUS             "_+_(operator)_"
+%token <t_token>    TMINUS            "_-_(operator)_"
 %token <t_token>    TTIMES
 %token <t_token>    TDIVIDE
 %token <t_token>    TMOD
@@ -174,7 +172,6 @@
 %token <t_token>    TEQUALS         "_=_(operator)"
 
 %type <t_ast_node> constant
-/*%type <t_ast_node> document*/
 %type <t_ast_node> double_constant
 %type <t_ast_node> enum_decl
 %type <t_ast_node> enumerator
@@ -184,7 +181,6 @@
 %type <t_ast_node> identifier
 %type <t_ast_node> implicit_array_decl
 %type <t_ast_node> import_decl
-/*%type <t_ast_node> import_decl_list*/
 %type <t_ast_node> int_constant
 %type <t_ast_node> interface
 %type <t_ast_node> interface_member
@@ -215,72 +211,25 @@
 %%
 
 root_level_object_list : root_level_object 
-                        { 
+                        {
                             fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
                             assert(driver != nullptr);
                             
-                            // If the top level node is not a package,
-                            // we want to add it to the current package.
-                            if(dynamic_cast<ast::Package*>($1) == nullptr)
-                            {
-                                ast::Package* current_package = driver->current_package();
-                                assert(current_package != nullptr);
-
-                                current_package->add_child($1);
-                            }
-                            // The top level node is a package
-                            else 
-                            {
-                                // Sanity check. Package shall already be a child of root_node
-                                // and set as the current package, before this rule is executed.
-                                assert(driver->current_package() == static_cast<ast::Package*>($1)); 
-                            }
+                            driver->add_root_object($1);
                         }
                        | root_level_object_list root_level_object 
                         {  
                             fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
                             assert(driver != nullptr);
                             
-                            // If the top level node is not a package,
-                            // we want to add it to the current package.
-                            if(dynamic_cast<ast::Package*>($2) == nullptr)
-                            {
-                                ast::Package* current_package = driver->current_package();
-                                assert(current_package != nullptr);
-
-                                current_package->add_child($2);
-                            }
-                            // The top level node is a package
-                            else 
-                            {
-                                // Sanity check. Package shall already be a child of root_node
-                                // and set as the current package, before this rule is executed.
-                                assert(driver->current_package() == static_cast<ast::Package*>($2)); 
-                            }
+                            driver->add_root_object($2);
                         }
                        ;
 
 root_level_object : interface { $$ = $1; }
                   | import_decl { $$ = $1; }
-                  | package 
-                    { 
-                        $$ = $1; 
-                        
-                        fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
-                        assert(driver != nullptr);
-                        
-                        ast::Package* package = dynamic_cast<ast::Package*>($1);
-                        assert(package != nullptr);
-    
-                        driver->push_package(package);
-                        
-                        g_root_node->add_child($1);
-                    }
+                  | package { $$ = $1; }
                   ;
-
-/*import_decl_list : import_decl { $$ = new ast::ASTNodeList(); $$->add_child($1); }*/
-                 /*| import_decl_list import_decl { $$ = $1; $$->add_child($2); }*/
-                 /*;*/
 
 import_decl : TIMPORT TMODEL string_constant 
                 { $$ = new ast::ImportDecl(*$3, nullptr); $$->add_child($3); }
@@ -289,15 +238,6 @@ import_decl : TIMPORT TMODEL string_constant
                     $$ = new ast::ImportDecl(*$4, $2); 
                     $$->add_child($4); 
                     $$->add_child($2); 
-                    
-                    fparser::FidlParser* driver = (fparser::FidlParser*)parser_driver;
-                    assert(driver != nullptr);
-                    
-                    ast::StringConstant* include_file = dynamic_cast<ast::StringConstant*>($4);
-                    if(include_file)
-                    {
-                        driver->parse_include(include_file->value());
-                    }
                 }
             ;
 
