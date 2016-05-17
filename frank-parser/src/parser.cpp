@@ -4,6 +4,7 @@
 #include "gen_flex_defines.h"
 
 #include <iostream>
+#include <sstream>
 #include <functional>
 #include <cassert>
 #include <algorithm>
@@ -34,6 +35,7 @@ void FidlParser::clear()
   }
 
   open_files_.clear();
+  include_directories_.clear();
 
   first_error_ = ParserStatus::SUCCESS;
 }
@@ -114,7 +116,15 @@ void FidlParser::pop_import()
 }
 bool FidlParser::open_and_buffer_file(std::vector<ParserFileInfo>* open_files, const std::string& filename)
 {
-  FILE* file_ptr = fopen(filename.c_str(), "r");
+  FILE* file_ptr = nullptr;
+
+  for(std::size_t i=0; i<include_directories_.size(); ++i)
+  {
+    std::stringstream ss;
+    ss << include_directories_[i] << "/" << filename;
+    file_ptr = fopen(ss.str().c_str(), "r");
+    if(file_ptr) break;
+  }
   if (file_ptr == nullptr)
   {
     std::cerr << "ERROR: failed to open file '" << filename << "'" << std::endl;
@@ -141,6 +151,26 @@ bool FidlParser::open_and_buffer_file(std::vector<ParserFileInfo>* open_files, c
 ParserStatus FidlParser::parse(const std::string& file, bool debug)
 {
   clear();
+
+  char buffer[1024];
+
+  // Add working directory as include directory
+  std::string current_dir = getcwd(buffer, sizeof(buffer));
+  include_directories_.push_back(current_dir);
+  
+  //std::cout << "Adding include directory: " << include_directories_.back() << "\n";
+
+  // If the parser was invoked with a filename like '../../test/test.fidl'
+  // also add that folder to the include directories, in case the parsed .fidl
+  // wants to include any files in the same directory
+  std::size_t last_slash = file.find_last_of("/\\");
+  if(last_slash != std::string::npos)
+  {
+      // Add the root folder of the opened file as include directory
+      current_dir = file.substr(0,last_slash); 
+      include_directories_.push_back(current_dir);
+      //std::cout << "Adding include directory: " << include_directories_.back() << "\n";
+  }
 
   //std::cout << "Opening file '" << file << "' for parsing\n";
   bool ok = open_and_buffer_file(&open_files_, file);

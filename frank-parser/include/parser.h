@@ -78,6 +78,7 @@ class FidlParser
   fparser::ast::Root* root_node_ = nullptr;
 
   std::vector<ParserFileInfo> open_files_;
+  std::vector<std::string> include_directories_;
   ParserStatus first_error_ = ParserStatus::SUCCESS;
 };
 }  // namespace fparser
