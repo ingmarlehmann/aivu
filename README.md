@@ -12,17 +12,18 @@ This project is in a very early stage, to give an overview of what has been done
 
 ## Parsing/lexing (frank-parser)  
 ### Fidl parsing (+AST construction)  
-  DONE: package declarations  
-  DONE: imports  
+  DONE: attributes
   DONE: comments  
-  DONE: interfaces  
-  DONE: enumerations  
-  DONE: version information  
-  DONE: structs  
-  DONE: methods  
-  DONE: implicit array declarations  
-  DONE: variable declarations  
   DONE: constants (all basic types)  
+  DONE: enumerations  
+  DONE: implicit array declarations  
+  DONE: imports  
+  DONE: interfaces  
+  DONE: methods  
+  DONE: package declarations  
+  DONE: structs  
+  DONE: variable declarations  
+  DONE: version information  
   TODO: explicit arrays  
   TODO: expressions  
   TODO: initializer lists  
