@@ -12,7 +12,7 @@ This project is in a very early stage, to give an overview of what has been done
 
 ## Parsing/lexing (frank-parser)  
 ### Fidl parsing (+AST construction)  
-  DONE: attributes
+  DONE: attributes  
   DONE: comments  
   DONE: constants (all basic types)  
   DONE: enumerations  
