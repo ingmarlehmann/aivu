@@ -183,6 +183,7 @@
 %type <t_ast_node> franca_comment
 %type <t_ast_node> identifier
 %type <t_ast_node> implicit_array_decl
+%type <t_ast_node> implicit_array_type
 %type <t_ast_node> import_decl
 %type <t_ast_node> int_constant
 %type <t_ast_node> interface
@@ -362,14 +363,12 @@ enumerator : identifier
 
 attribute_decl : TATTRIBUTE type identifier 
                     { $$ = new ast::AttributeDecl(*$2, *$3); $$->add_child($2); $$->add_child($3); }
+               | TATTRIBUTE implicit_array_type identifier
+                    { $$ = new ast::AttributeDecl(*$2, *$3); $$->add_child($2); $$->add_child($3); }
                ;
 
 franca_comment : TFRANCACOMMENT { $$ = new ast::FrancaComment(*$1); delete $1; }
                ;
-
-implicit_array_decl : type TLBRACKET TRBRACKET identifier 
-                        { $$ = new ast::ImplicitArrayDecl(*$1, *$4); $$->add_child($1); $$->add_child($4); }
-                    ;
 
 variable_decl : type identifier { $$ = new ast::VariableDecl(); $$->add_child($1); $$->add_child($2); }
               | type identifier TEQUALS constant { $$ = new ast::VariableDecl(); $$->add_child($1); $$->add_child($2); $$->add_child($4); }
@@ -404,6 +403,13 @@ float_constant : TFLOAT_CONST { $$ = new ast::FloatConstant($1); }
 double_constant : TDOUBLE_CONST { $$ = new ast::DoubleConstant($1); }
          | TDOUBLE_CONST_HEX { $$ = new ast::DoubleConstant($1); }
          ;
+
+implicit_array_decl : implicit_array_type identifier 
+                        { $$ = new ast::ImplicitArrayDecl(*$1, *$2); $$->add_child($1); $$->add_child($2); }
+                    ;
+
+implicit_array_type : type TLBRACKET TRBRACKET { $$ = $1; }
+                    ;
 
 type : identifier { $$ = new ast::Type(0, dynamic_cast<ast::Identifier*>($1)->name()); $$->add_child($1); }
 
