@@ -12,6 +12,7 @@
 
     #include "ast/ast_node.h"
     #include "ast/ast_node_list.h"
+    #include "ast/attribute_decl.h"
     #include "ast/broadcast_method_decl.h"
     #include "ast/double_constant.h"
     #include "ast/enum_decl.h"
@@ -91,6 +92,7 @@
 %token <t_string>   TNAMESPACE_IMPORT "_namespace_import_(definition)"
 %token <t_string>   TSTRING_CONST     "_string_constant_(definition)"
 
+%token <t_token>    TATTRIBUTE        "_attribute_(keyword)"
 %token <t_token>    TIMPORT           "_import_(keyword)"
 %token <t_token>    TMODEL            "_model_(keyword)"
 %token <t_token>    TFROM             "_from_(keyword)"
@@ -171,6 +173,7 @@
 
 %token <t_token>    TEQUALS         "_=_(operator)"
 
+%type <t_ast_node> attribute_decl
 %type <t_ast_node> constant
 %type <t_ast_node> double_constant
 %type <t_ast_node> enum_decl
@@ -254,7 +257,8 @@ interface_member_list : interface_member { $$ = new ast::ASTNodeList(); $$->add_
                       | interface_member_list interface_member { $$ = $1; $$->add_child($2); }
                       ;
 
-interface_member : enum_decl
+interface_member : attribute_decl
+                 | enum_decl
                  | method_decl
                  | struct_decl
                  ;
@@ -356,7 +360,12 @@ enumerator : identifier
                 { $$ = new ast::Enumerator(); $$->add_child($1); $$->add_child($2); $$->add_child($4); }
            ;
 
+attribute_decl : TATTRIBUTE type identifier 
+                    { $$ = new ast::AttributeDecl(*$2, *$3); $$->add_child($2); $$->add_child($3); }
+               ;
+
 franca_comment : TFRANCACOMMENT { $$ = new ast::FrancaComment(*$1); delete $1; }
+               ;
 
 implicit_array_decl : type TLBRACKET TRBRACKET identifier 
                         { $$ = new ast::ImplicitArrayDecl(*$1, *$4); $$->add_child($1); $$->add_child($4); }
@@ -395,6 +404,8 @@ float_constant : TFLOAT_CONST { $$ = new ast::FloatConstant($1); }
 double_constant : TDOUBLE_CONST { $$ = new ast::DoubleConstant($1); }
          | TDOUBLE_CONST_HEX { $$ = new ast::DoubleConstant($1); }
          ;
+
+type : identifier { $$ = new ast::Type(0, dynamic_cast<ast::Identifier*>($1)->name()); $$->add_child($1); }
 
 type : TINTEGER    { $$ = new ast::Type(0,  std::string("Integer")); }
      | TUINT64     { $$ = new ast::Type(0,  std::string("UInt64")); }

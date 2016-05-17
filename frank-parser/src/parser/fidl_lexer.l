@@ -186,7 +186,6 @@ NAMESPACE_IMPORT        {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*\.\*
     /* Reserved keywords */
     /* ================= */
     /*                   */
-    /*{ATTRIBUTE}               return TOKEN(TATTRIBUTE);*/
 
     /*{EXTENDS}             return TOKEN(TEXTENDS);*/
     /*{POLYMORPHIC}         return TOKEN(TPOLYMORPHIC);*/
@@ -204,6 +203,7 @@ NAMESPACE_IMPORT        {PACKAGE_NAME_ID}(\.{PACKAGE_NAME_ID})*\.\*
     /*{ARRAY}                   return TOKEN(TARRAY);*/
     /*{OF}                  return TOKEN(TOF);*/
 
+{ATTRIBUTE}      return      TOKEN(TATTRIBUTE);
 {IMPORT}         return      TOKEN(TIMPORT);
 {FROM}           return      TOKEN(TFROM);
 {MODEL}          return      TOKEN(TMODEL);

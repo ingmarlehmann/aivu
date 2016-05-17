@@ -6,6 +6,7 @@ namespace fparser
 namespace ast
 {
 class ASTNodeList;
+class AttributeDecl;
 class BroadcastMethodDecl;
 class DoubleConstant;
 class EnumDecl;
@@ -32,6 +33,7 @@ class ASTNodeVisitor
 {
  public:
   virtual void visit(ast::ASTNodeList&         node)  = 0;
+  virtual void visit(ast::AttributeDecl&       node)  = 0;
   virtual void visit(ast::BroadcastMethodDecl& node)  = 0;
   virtual void visit(ast::DoubleConstant&      node)  = 0;
   virtual void visit(ast::EnumDecl&            node)  = 0;
