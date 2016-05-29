@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "ast/array_variable_decl.h"
 #include "ast/ast_node.h"
 #include "ast/ast_node_list.h"
 #include "ast/attribute_decl.h"
@@ -12,7 +13,6 @@
 #include "ast/float_constant.h"
 #include "ast/franca_comment.h"
 #include "ast/identifier.h"
-#include "ast/implicit_array_decl.h"
 #include "ast/import_decl.h"
 #include "ast/int_constant.h"
 #include "ast/interface.h"
@@ -33,9 +33,9 @@ ASTPrintVisitor::ASTPrintVisitor(int indent_step_size, const char indent_charact
 {
 }
 
-void ASTPrintVisitor::visit(fparser::ast::ImplicitArrayDecl &node)
+void ASTPrintVisitor::visit(fparser::ast::ArrayVariableDecl &node)
 {
-  std::cout << nchars(indent_character_, indentation_) << "ImplicitArrayDecl" << std::endl;
+  std::cout << nchars(indent_character_, indentation_) << "ArrayVariableDecl" << std::endl;
   visit_children(node, *this);
 }
 

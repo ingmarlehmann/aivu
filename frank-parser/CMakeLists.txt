@@ -20,6 +20,34 @@ FLEX_TARGET(FidlLexer
 ADD_FLEX_BISON_DEPENDENCY(FidlLexer FidlParser)
 
 set(SOURCES 
+        #include/parser.h
+        include/ast/array_variable_decl.h
+        include/ast/ast_node.h
+        include/ast/ast_node_list.h
+        include/ast/ast_node_visitor.h
+        include/ast/attribute_decl.h
+        include/ast/broadcast_method_decl.h
+        include/ast/double_constant.h
+        include/ast/enum_decl.h
+        include/ast/enumerator.h
+        include/ast/float_constant.h
+        include/ast/franca_comment.h
+        include/ast/identifier.h
+        include/ast/import_decl.h
+        include/ast/int_constant.h
+        include/ast/interface.h
+        include/ast/method_argument.h
+        include/ast/method_body.h
+        include/ast/method_decl.h
+        include/ast/package.h
+        include/ast/root.h
+        include/ast/string_constant.h
+        include/ast/struct_decl.h
+        include/ast/type.h
+        include/ast/variable_decl.h
+        include/ast/version.h
+        include/util/util.h
+        src/ast/array_variable_decl.cpp
         src/ast/ast_node.cpp
         src/ast/ast_node_list.cpp
         src/ast/attribute_decl.cpp
@@ -30,7 +58,6 @@ set(SOURCES
         src/ast/float_constant.cpp
         src/ast/franca_comment.cpp
         src/ast/identifier.cpp
-        src/ast/implicit_array_decl.cpp
         src/ast/import_decl.cpp
         src/ast/int_constant.cpp
         src/ast/interface.cpp
@@ -46,33 +73,6 @@ set(SOURCES
         src/ast/version.cpp
         src/parser.cpp
         src/util/util.cpp
-        include/ast/ast_node.h
-        include/ast/ast_node_list.h
-        include/ast/ast_node_visitor.h
-        include/ast/attribute_decl.h
-        include/ast/broadcast_method_decl.h
-        include/ast/double_constant.h
-        include/ast/enum_decl.h
-        include/ast/enumerator.h
-        include/ast/float_constant.h
-        include/ast/franca_comment.h
-        include/ast/identifier.h
-        include/ast/implicit_array_decl.h
-        include/ast/import_decl.h
-        include/ast/int_constant.h
-        include/ast/interface.h
-        include/ast/method_argument.h
-        include/ast/method_body.h
-        include/ast/method_decl.h
-        include/ast/package.h
-        include/ast/root.h
-        include/ast/string_constant.h
-        include/ast/struct_decl.h
-        include/ast/type.h
-        include/ast/variable_decl.h
-        include/ast/version.h
-        #include/parser.h
-        include/util/util.h
         )
 
 add_library(${PROJECT_NAME}

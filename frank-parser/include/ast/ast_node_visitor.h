@@ -6,6 +6,7 @@ namespace fparser
 namespace ast
 {
 class ASTNodeList;
+class ArrayVariableDecl;
 class AttributeDecl;
 class BroadcastMethodDecl;
 class DoubleConstant;
@@ -14,7 +15,6 @@ class Enumerator;
 class FloatConstant;
 class FrancaComment;
 class Identifier;
-class ImplicitArrayDecl;
 class ImportDecl;
 class IntConstant;
 class Interface;
@@ -41,7 +41,7 @@ class ASTNodeVisitor
   virtual void visit(ast::FloatConstant&       node)  = 0;
   virtual void visit(ast::FrancaComment&       node)  = 0;
   virtual void visit(ast::Identifier&          node)  = 0;
-  virtual void visit(ast::ImplicitArrayDecl&   node)  = 0;
+  virtual void visit(ast::ArrayVariableDecl&   node)  = 0;
   virtual void visit(ast::ImportDecl&          node)  = 0;
   virtual void visit(ast::IntConstant&         node)  = 0;
   virtual void visit(ast::Interface&           node)  = 0;

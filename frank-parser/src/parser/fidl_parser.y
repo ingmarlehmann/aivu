@@ -21,7 +21,7 @@
     #include "ast/franca_comment.h"
     #include "ast/identifier.h"
     #include "ast/import_decl.h"
-    #include "ast/implicit_array_decl.h"
+    #include "ast/array_variable_decl.h"
     #include "ast/int_constant.h"
     #include "ast/interface.h"
     #include "ast/method_argument.h"
@@ -182,7 +182,7 @@
 %type <t_ast_node> float_constant
 %type <t_ast_node> franca_comment
 %type <t_ast_node> identifier
-%type <t_ast_node> implicit_array_decl
+%type <t_ast_node> array_variable_decl
 %type <t_ast_node> implicit_array_type
 %type <t_ast_node> import_decl
 %type <t_ast_node> int_constant
@@ -337,7 +337,7 @@ struct_member_list : struct_member { $$ = new ast::ASTNodeList(); $$->add_child(
                    | struct_member_list struct_member { $$ = $1; $$->add_child($2); }
                    ;
 
-struct_member : implicit_array_decl
+struct_member : array_variable_decl
               | variable_decl
               ;
 
@@ -404,8 +404,8 @@ double_constant : TDOUBLE_CONST { $$ = new ast::DoubleConstant($1); }
          | TDOUBLE_CONST_HEX { $$ = new ast::DoubleConstant($1); }
          ;
 
-implicit_array_decl : implicit_array_type identifier 
-                        { $$ = new ast::ImplicitArrayDecl(*$1, *$2); $$->add_child($1); $$->add_child($2); }
+array_variable_decl : implicit_array_type identifier 
+                        { $$ = new ast::ArrayVariableDecl(*$1, *$2); $$->add_child($1); $$->add_child($2); }
                     ;
 
 implicit_array_type : type TLBRACKET TRBRACKET { $$ = $1; }

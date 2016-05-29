@@ -10,7 +10,7 @@ namespace fparser
 {
 namespace ast
 {
-class ImplicitArrayDecl : public ast::ASTNode
+class ArrayVariableDecl : public ast::ASTNode
 {
  public:
   const ASTNode& type() const;
@@ -20,8 +20,8 @@ class ImplicitArrayDecl : public ast::ASTNode
   virtual void accept(ASTNodeVisitor& visitor) override;
 
 public:
-  ImplicitArrayDecl(const ASTNode& type, const ASTNode& name);
-  virtual ~ImplicitArrayDecl();
+  ArrayVariableDecl(const ASTNode& type, const ASTNode& name);
+  virtual ~ArrayVariableDecl();
 
 private:
   const ASTNode& type_;
