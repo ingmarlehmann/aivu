@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <sstream>
+#include <functional>
 #include "ast/ast_node.h"
 
 #include "gen_bison_parser.hpp"
